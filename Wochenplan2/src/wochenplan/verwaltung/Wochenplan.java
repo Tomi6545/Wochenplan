@@ -6,9 +6,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import wochenplan.verwaltung.exceptions.InvalidTimeException;
+import wochenplan.verwaltung.exceptions.TerminAddException;
+import wochenplan.verwaltung.exceptions.TerminRemoveException;
+
 public class Wochenplan {
 
-	Termin[][] termine = new Termin[7][48];
+	Termin[][] termine = new Termin[7][96];
 
 	public Wochenplan() {
 		//this(null);
@@ -25,23 +29,34 @@ public class Wochenplan {
 		
 		this.termine = plan.termine;
 	}
-
-	public void addTermin(String name, int tag, int beginn, int ende) {
+	
+	
+	/**
+	 * Versucht einen @Termin hinzuzufügen
+	 * Wenn an der Stelle schon ein Termin existiert tritt eine @TerminAddException auf
+	 */
+	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException {
+		Termin[][] copy = termine.clone();
+		Termin termin = new Termin(name, beginn, ende); 
 		for (int i = beginn; i < ende; i++) {
-			termine[tag][i] = new Termin(name, beginn, ende);
+			if(existsTermin(tag, i))
+					throw new TerminAddException();
+			copy[tag][i] = termin;
 		}
+		
+		termine = copy;
 	}
 
 	/**
-	 * Return true wenn der Termin erfolgreich entfernt wurde. Andernfalls wird
-	 * false returnt
+	 * Versucht einen @Termin zu entfernen
+	 * Wenn dieser nicht existiert tritt eine @TerminRemoveException auf
 	 */
-	public boolean removeTermin(int tag, int zeitslot) {
-		if (!existsTermin(tag, zeitslot))
-			return false;
-
+	public void removeTermin(int tag, int zeitslot) throws TerminRemoveException {
+		if(!existsTermin(tag, zeitslot))
+			throw new TerminRemoveException();
+		
 		Termin termin = termine[tag][zeitslot];
-
+		
 		// ALLE EINTRÄGE DES TERMINS DIE SPÄTER SIND ENTFERNEN
 		int slot = zeitslot;
 		while (slot < termine[tag].length) {
@@ -61,8 +76,6 @@ public class Wochenplan {
 			termine[tag][slot] = null;
 			slot--;
 		}
-
-		return true;
 	}
 
 	/**
@@ -102,13 +115,42 @@ public class Wochenplan {
 
 		return false;
 	}
+	
+	/**
+	 * Returnt die TerminZeit falls dieser Termin existiert.
+	 * Ansonsten wird null returnt
+	 */
+	public TerminZeit getDuration(Termin termin) {
+		int tag = -1;
+		int start = -1;
+		int ende = -1;
+		boolean foundTermin = false;
+		DURATIONCHECK: for (int i = 0; i < termine.length; i++)
+			for (int j = 0; j < termine[i].length; j++) {
+				
+				if(!foundTermin && termin == getTermin(i, j)) {
+					foundTermin = true;
+					tag = i;
+					start = j;
+				} else if(foundTermin && termin != getTermin(i, j)) {
+					ende = j-1;
+					break DURATIONCHECK;
+				}
+			}
+		
+		try {
+			return TerminZeit.create(tag, start, ende);
+		} catch (InvalidTimeException e) {
+			return null;
+		}
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		boolean anyTermin = false;
 		for (int tag = 0; tag < 7; tag++) {
-			for (int i = 0; i < 48; i++) {
+			for (int i = 0; i < 96; i++) {
 				if (termine[tag][i] != null) {
 					builder.append(termine[tag][i] + "\n");
 					System.out.println();
@@ -123,7 +165,7 @@ public class Wochenplan {
 
 		return builder.toString();
 	}
-
+	
 	// TODO
 	public File saveAsFile(String filename) throws IOException {
 		File file = new File(filename);
@@ -136,8 +178,7 @@ public class Wochenplan {
 		for (int i = 0; i < termine.length; i++)
 			for (int j = 0; j < termine[i].length; j++) {
 				if (existsTermin(i, j))
-					;
-				writer.write(i + "/" + j + ":" + getTermin(i, j).getName());
+					writer.write(i + "/" + j + ":" + getTermin(i, j).getName() + "\n");
 			}
 
 		writer.close();
@@ -158,7 +199,7 @@ public class Wochenplan {
 				int zeitslot = Integer.parseInt(splittedLine[0].split("/")[1]);
 				String name = splittedLine[1];
 
-				wochenplan.addTermin(name, tag, zeitslot, zeitslot + 30);
+				wochenplan.addTermin(name, tag, zeitslot, zeitslot + 15);
 			} catch (Exception e) {
 			}
 		}
