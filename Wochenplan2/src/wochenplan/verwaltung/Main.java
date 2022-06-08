@@ -236,4 +236,12 @@ public class Main {
 		if (!anyTermin)
 			System.out.println("Es wurden noch keine Termine eingetragen");
 	}
+	
+	public static int getScannerIntegerInput() {
+		try {
+			return sc.nextInt();
+		} catch(InputMismatchException e) {
+			return (int) Double.NaN;
+		}
+	}
 }
