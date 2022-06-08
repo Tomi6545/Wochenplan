@@ -32,10 +32,14 @@ public class TerminZeit {
 	
 	@Override
 	public String toString() {
-		return convertTagToString() + start + " - " + ende;
+		try {
+			return convertIntToTag(tag) + start + " - " + ende;
+		} catch (InvalidTimeException e) {
+			return "Ungültige Zeit";
+		}
 	}
 	
-	private String convertTagToString() {
+	public static String convertIntToTag(int tag) throws InvalidTimeException {
 		switch(tag) {
 			case 0:
 				return "Montag";
@@ -52,9 +56,32 @@ public class TerminZeit {
 			case 6:
 				return "Sonntag";
 			default:
-				return "";
+				throw new InvalidTimeException();
 		}
 	}
+	
+	public static int convertTagToInt(String tag) throws InvalidTimeException {
+		switch(tag.toLowerCase()) {
+			case "Montag":
+				return 0;
+			case "Dienstag":
+				return 1;
+			case "Mittwoch":
+				return 2;
+			case "Donnerstag":
+				return 3;
+			case "Freitag":
+				return 4;
+			case "Samstag":
+				return 5;
+			case "Sonntag":
+				return 6;
+			default:
+				throw new InvalidTimeException();
+		}
+	}
+	
+	
 	
 	/**
 	 * returnt true wenn es eine gültige Zeit für einen Termin ist
