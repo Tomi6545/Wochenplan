@@ -7,6 +7,7 @@ import java.util.Scanner;
 import javax.sql.rowset.serial.SQLOutputImpl;
 
 import wochenplan.verwaltung.exceptions.TerminAddException;
+import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
 public class Main {
 
@@ -32,14 +33,15 @@ public class Main {
 	public static void menu() {
 
 		System.out.println("Was möchten Sie tun? Sie haben folgende Optionen:");
-		System.out.printf("%-7s  %s%n", "add", "einen neuen Termin erstellen");
-		System.out.printf("%-7s  %s%n", "remove", "einen Termin löschen");
-		System.out.printf("%-7s  %s%n", "rename", "einen Termin umbenennen");
-		System.out.printf("%-7s  %s%n", "print", "den Wochenplan ausgeben");
-		System.out.printf("%-7s  %s%n", "save", "den Wochenplan als Datei speichern");
-		System.out.printf("%-7s  %s%n", "load", "einen Wochenplan aus einer Datei laden");
-		System.out.printf("%-7s  %s%n", "help", "die Optionen erneut anzuzeigen");
-		System.out.printf("%-7s  %s%n", "end", "das Programm beenden");
+		System.out.printf("%-8s  %s%n", "add", "einen neuen Termin erstellen");
+		System.out.printf("%-8s  %s%n", "remove", "einen Termin löschen");
+		System.out.printf("%-8s  %s%n", "rename", "einen Termin umbenennen");
+		System.out.printf("%-8s  %s%n", "print", "den Tagesplan ausgeben");
+		System.out.printf("%-8s  %s%n", "printall", "den Wochenplan ausgeben");
+		System.out.printf("%-8s  %s%n", "save", "den Wochenplan als Datei speichern");
+		System.out.printf("%-8s  %s%n", "load", "einen Wochenplan aus einer Datei laden");
+		System.out.printf("%-8s  %s%n", "help", "die Optionen erneut anzuzeigen");
+		System.out.printf("%-8s  %s%n", "end", "das Programm beenden");
 
 	}
 
@@ -73,28 +75,29 @@ public class Main {
 				break;
 			case "REMOVE":
 				System.out.println("Gebe Sie den Tag und die Startpunkt des Termins ein, welches Sie löschen möchten.");
-				int tag1 = sc.nextInt();
-				int beginn1 = sc.nextInt();
-				if (woche.existsTermin(tag1, beginn1)) {
-					System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
-					System.out.println(woche.getTermin(tag1, beginn1));
-					System.out.println("y für yes oder n für no");
-					String input = sc.next();
-					if (input.equals("y")) {
+				int tag1 = sc.nextInt() - 1;
+				int beginn1 = (int) (sc.nextDouble() * 4);
 
+				System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
+				System.out.println(woche.getTermin(tag1, beginn1));
+				System.out.println("y für yes oder n für no");
+				String input = sc.next();
+				try {
+					if (input.equals("y")) {
+						woche.removeTermin(tag1, beginn1);
 					}
+				} catch (TerminRemoveException e) {
+					System.out.println("Termin existiert nicht");
 				}
 				break;
 			case "PRINT":
-				System.out.println("Möchten Sie eine Wochenübersicht oder Tagesübersicht?");
-				System.out.println("w für Wochenübersicht oder andere Eingabe für Tagesübersicht");
-				String in = sc.next();
-				if (in.equals("w")) {
-					printTermine(woche);
-				} else {
-					System.out.println("Geben Sie den gewünschten Wochentag ein");
-					printTermine(woche.termine, sc.nextInt() - 1);
-				}
+				System.out.println("Geben Sie den gewünschten Wochentag ein");
+				System.out.println(
+						"Montag = 1, Dienstag = 2; Mittwoch = 3, Donnerstag = 4, Freitag = 5; Samstag = 6, Sonntag = 7");
+				printTermine(woche.termine, sc.nextInt() - 1);
+				break;
+			case "PRINTALL":
+				printTermine(woche);
 				break;
 			case "RENAME":
 				System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
@@ -109,8 +112,8 @@ public class Main {
 						System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
 						System.out.println(woche.getTermin(oldName));
 						System.out.println("y für yes oder n für no");
-						String input = sc.next();
-						if (input.equals("y")) {
+						String input1 = sc.next();
+						if (input1.equals("y")) {
 							System.out.println("Geben Sie den neuen Namen des Termins ein");
 							String newName = sc.next();
 							woche.getTermin(oldName).setName(newName);
@@ -128,8 +131,8 @@ public class Main {
 						System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
 						System.out.println(woche.getTermin(tag2, beginn2));
 						System.out.println("y für yes oder n für no");
-						String input = sc.next();
-						if (input.equals("y")) {
+						String input2 = sc.next();
+						if (input2.equals("y")) {
 							System.out.println("Geben Sie den neuen Namen des Termins ein");
 							String newName = sc.next();
 							for (int i = 0; i < woche.termine[tag2][beginn2].dauer; i++) {
