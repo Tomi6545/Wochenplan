@@ -14,6 +14,7 @@ public class Main {
 
 		menu();
 		programm(termine, woche1);
+		
 	}
 
 	public static void menu() {
