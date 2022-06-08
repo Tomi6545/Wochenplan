@@ -21,7 +21,7 @@ public class Main {
 		woche1.addTermin("Mathe", 2, 36, 42);
 
 		menu();
-		programm(woche1);
+		programm(woche1); 
 
 		for (int tag = 0; tag < 7; tag++) {
 			for (int i = 0; i < 96; i++) {
