@@ -244,4 +244,26 @@ public class Main {
 			return (int) Double.NaN;
 		}
 	}
+	
+	public static int getValue (int minValue, int maxValue) {
+	    Integer value;
+	    value = null;
+	    while (true) {
+	        try {
+	            value = sc.nextInt();
+	            sc.nextLine();
+	            if ((value >= minValue) && (value <= maxValue)) {
+	                break;
+	            } else {
+	                // Shows message that says value is not in range.
+	                continue;
+	            }
+	        } catch (InputMismatchException IME) {
+	            // Shows message that says value is not an integer.
+	            sc.next();
+	            continue;
+	        }
+	    }
+	    return(value);
+	}
 }
