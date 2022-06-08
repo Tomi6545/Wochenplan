@@ -2,6 +2,7 @@ package wochenplan.verwaltung;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import javax.sql.rowset.serial.SQLOutputImpl;
@@ -234,5 +235,13 @@ public class Main {
 
 		if (!anyTermin)
 			System.out.println("Es wurden noch keine Termine eingetragen");
+	}
+	
+	public static int getScannerIntegerInput() {
+		try {
+			return sc.nextInt();
+		} catch(InputMismatchException e) {
+			return (int) Double.NaN;
+		}
 	}
 }
