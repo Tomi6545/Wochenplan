@@ -84,7 +84,18 @@ public class Wochenplan {
 	public Termin getTermin(int tag, int zeitslot) {
 		return existsTermin(tag, zeitslot) ? termine[tag][zeitslot] : null;
 	}
-
+	
+	/**
+	 * Returnt einen Termin mit dem Namen name, falls dieser existiert, ansonsten null
+	 */
+	public Termin getTermin(String name) {
+		for (int i = 0; i < termine.length; i++)
+			for (int j = 0; j < termine[i].length; j++)
+				if (existsTermin(i, j) && getTermin(i, j).getName().equals(name))
+					return termine[i][j];
+		return null;
+	}
+	
 	/**
 	 * Returnt true, wenn ein Termin an dieser Stelle eingetragen ist
 	 */
@@ -115,6 +126,7 @@ public class Wochenplan {
 
 		return false;
 	}
+	
 	
 	/**
 	 * Returnt die TerminZeit falls dieser Termin existiert.
