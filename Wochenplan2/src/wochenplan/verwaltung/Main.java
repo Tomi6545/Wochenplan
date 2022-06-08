@@ -12,14 +12,19 @@ public class Main {
 
 	private static Scanner sc;
 
-	public static void main(String[] args) throws TerminAddException {
+	public static void main(String[] args) {
 
 		Wochenplan woche1 = new Wochenplan(new Termin[7][96]);
 		sc = new Scanner(System.in);
-		woche1.addTermin("Mathe", 2, 36, 42);
+		try {
+			woche1.addTermin("Mathe", 2, 36, 42);
+		} catch (TerminAddException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		menu();
-		programm(woche1); 
+		programm(woche1);
 
 		for (int tag = 0; tag < 7; tag++) {
 			for (int i = 0; i < 96; i++) {
@@ -65,7 +70,7 @@ public class Main {
 				int beginn = (int) (sc.nextDouble() * 4);
 				int ende = (int) (sc.nextDouble() * 4);
 
-				System.out.println("Geben sie den Namen des Termins ein");
+				System.out.println("Geben Sie den Namen des Termins ein");
 				String TerminBezeichner = sc.next();
 
 				for (int i = beginn; i < ende; i++) {
@@ -73,17 +78,21 @@ public class Main {
 				}
 				break;
 			case "REMOVE":
-				System.out.println("Gebe Sie den Tag und die Startpunkt des Termins ein, welches Sie löschen möchten.");
+				System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welchen Sie löschen möchten.");
 				int tag1 = sc.nextInt() - 1;
 				int beginn1 = (int) (sc.nextDouble() * 4);
-
-				System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
-				System.out.println(woche.getTermin(tag1, beginn1));
-				System.out.println("y für yes oder n für no");
-				String input = sc.next();
+				
 				try {
+					if(!woche.existsTermin(tag1, beginn1)) {
+						throw new TerminRemoveException();
+					}
+					System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
+					System.out.println(woche.getTermin(tag1, beginn1));
+					System.out.println("y für yes oder n für no");
+					String input = sc.next();
 					if (input.equals("y")) {
 						woche.removeTermin(tag1, beginn1);
+						System.out.println("Termin wurde erfolgreich gelöscht");
 					}
 				} catch (TerminRemoveException e) {
 					System.out.println("Termin existiert nicht");
@@ -234,26 +243,28 @@ public class Main {
 		if (!anyTermin)
 			System.out.println("Es wurden noch keine Termine eingetragen");
 	}
-	
-	public static int getValue (int minValue, int maxValue) {
-	    Integer value;
-	    value = null;
-	    while (true) {
-	        try {
-	            value = sc.nextInt();
-	            sc.nextLine();
-	            if ((value >= minValue) && (value <= maxValue)) {
-	                break;
-	            } else {
-	                // Shows message that says value is not in range.
-	                continue;
-	            }
-	        } catch (InputMismatchException IME) {
-	            // Shows message that says value is not an integer.
-	            sc.next();
-	            continue;
-	        }
-	    }
-	    return(value);
-	} 
+
+	public static int getIntegerValue() {
+		while (true) {
+			try {
+				int value = sc.nextInt();
+				return value;
+			} catch (InputMismatchException e) {
+				System.out.println("Geben Sie eine gültige Zahl ein");
+				sc.next();
+			}
+		}
+	}
+
+	public static double getDoubleValue() {
+		while (true) {
+			try {
+				double value = sc.nextDouble();
+				return value;
+			} catch (InputMismatchException e) {
+				System.out.println("Geben Sie eine gültige Zahl ein");
+				sc.next();
+			}
+		}
+	}
 }
