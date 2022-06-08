@@ -1,5 +1,7 @@
 package wochenplan.verwaltung;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
@@ -86,6 +88,26 @@ public class Main {
 			case "E":
 				System.out.println("Thank you for using our software! Bye");
 				looping = false;
+				break;
+			case "SAVE":
+				System.out.println("Geben Sie einen Namen für die Datei an");
+				String filename = sc.next();
+				try {
+					woche.saveAsFile(filename);
+					System.out.println("Wochenplan wurde erfolgreich als Datei abgespeichert!");
+				} catch (IOException e) {
+					System.out.println("Ein Fehler beim Speichern der Datei " + filename +" ist aufgetreten!");
+				}
+				break;
+			case "LOAD":
+				System.out.println("Geben Sie den Namen der Datei an");
+				String filename2 = sc.next();
+				try {
+					woche = Wochenplan.fromFile(new File(filename2));
+					System.out.println("Wochenplan wurde erfolgreich aus der Datei geladen!");
+				} catch (IOException e) {
+					System.out.println("Ein Fehler beim Laden der Datei " + filename2 +" ist aufgetreten!");
+				}
 				break;
 			default:
 				System.out.println("Keine gültige Eingabe!");
