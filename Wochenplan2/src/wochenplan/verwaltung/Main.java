@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import javax.sql.rowset.serial.SQLOutputImpl;
-
 import wochenplan.verwaltung.exceptions.TerminAddException;
 import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
@@ -235,14 +233,6 @@ public class Main {
 
 		if (!anyTermin)
 			System.out.println("Es wurden noch keine Termine eingetragen");
-	}
-	
-	public static int getScannerIntegerInput() {
-		try {
-			return sc.nextInt();
-		} catch(InputMismatchException e) {
-			return (int) Double.NaN;
-		}
 	}
 	
 	public static int getValue (int minValue, int maxValue) {
