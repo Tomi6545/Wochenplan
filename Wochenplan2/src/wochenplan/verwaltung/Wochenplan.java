@@ -109,7 +109,7 @@ public class Wochenplan {
 			slot--;
 		}
 	}
-	
+
 
 	/**
 	 * Returnt einen Termin falls vorhanden, sonst null
@@ -118,16 +118,25 @@ public class Wochenplan {
 		return existsTermin(tag, zeitslot) ? termine[tag][zeitslot] : null;
 	}
 	
-	/**
-	 * Returnt einen Termin mit dem Namen name, falls dieser existiert, ansonsten null
-	 */
-	public Termin getTermin(String name) {
+	
+	public int getTerminDay(String name) {
 		for (int i = 0; i < termine.length; i++)
 			for (int j = 0; j < termine[i].length; j++)
 				if (existsTermin(i, j) && getTermin(i, j).getName().equals(name))
-					return termine[i][j];
-		return null;
+					return i;
+		return 0;
 	}
+	
+	public int getTerminTime(String name) {
+		for (int i = 0; i < termine.length; i++)
+			for (int j = 0; j < termine[i].length; j++)
+				if (existsTermin(i, j) && getTermin(i, j).getName().equals(name))
+					return j;
+		return 0;
+	}
+	
+	
+
 	
 	/**
 	 * Returnt true, wenn ein Termin an dieser Stelle eingetragen ist
@@ -159,7 +168,6 @@ public class Wochenplan {
 
 		return false;
 	}
-	
 	
 	/**
 	 * Returnt die TerminZeit falls dieser Termin existiert.
@@ -221,6 +229,17 @@ public class Wochenplan {
 			output += printTermine(i)+"\n";
 		}
 		
+		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
+	
+	public String printTermin(int tag, int zeitslot) {
+		String output = "";
+		if(existsTermin(tag, zeitslot)) {
+			Termin termin = getTermin(tag,zeitslot);
+			TerminZeit dauer = getDuration(termin);
+			output = output += "\n" + TerminZeit.formatTime(dauer.getStart())  + " - " + TerminZeit.formatTime(dauer.getEnde()) + ": " +  termin.toString();
+
+		}
 		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
 	}
 	
