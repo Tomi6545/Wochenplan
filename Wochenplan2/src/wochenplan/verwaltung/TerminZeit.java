@@ -1,7 +1,5 @@
 package wochenplan.verwaltung;
 
-import java.text.DecimalFormat;
-
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 
 public class TerminZeit {

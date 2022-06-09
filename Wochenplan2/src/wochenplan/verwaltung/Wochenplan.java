@@ -41,7 +41,7 @@ public class Wochenplan {
 		
 		Termin[][] copy = termine.clone();
 		Termin termin = new Termin(name); 
-		for (int i = beginn; i < ende; i++) {
+		for (int i = beginn; i <= ende; i++) {
 			if(existsTermin(tag, i))
 					throw new TerminAddException();
 			copy[tag][i] = termin;
@@ -190,7 +190,7 @@ public class Wochenplan {
 			if(!existsTermin(i))
 				continue;
 			
-			output += printTermine(i);
+			output += printTermine(i)+"\n";
 		}
 		
 		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
