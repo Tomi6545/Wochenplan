@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
 import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
@@ -18,7 +19,7 @@ public class Main {
 		sc = new Scanner(System.in);
 		try {
 			woche1.addTermin("Mathe", 2, 36, 42);
-		} catch (TerminAddException e) {
+		} catch (TerminAddException | InvalidTimeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -73,8 +74,12 @@ public class Main {
 				System.out.println("Geben Sie den Namen des Termins ein");
 				String TerminBezeichner = sc.next();
 
-				for (int i = beginn; i < ende; i++) {
-					woche.termine[tag][i] = addTermin(TerminBezeichner, beginn, ende);
+				try {
+					woche.addTermin(TerminBezeichner, tag, beginn, ende);
+				} catch (TerminAddException e1) {
+					System.out.println("Termin existiert bereits an diesem Zeitpunkt");
+				} catch (InvalidTimeException e) {
+					System.out.println("Ungültige Zeit!");
 				}
 				break;
 			case "REMOVE":
@@ -96,16 +101,18 @@ public class Main {
 					}
 				} catch (TerminRemoveException e) {
 					System.out.println("Termin existiert nicht");
+				} catch (InvalidTimeException e) {
+					System.out.println("Ungültige Zeit!");
 				}
 				break;
 			case "PRINT":
 				System.out.println("Geben Sie den gewünschten Wochentag ein");
 				System.out.println(
 						"Montag = 1, Dienstag = 2; Mittwoch = 3, Donnerstag = 4, Freitag = 5; Samstag = 6, Sonntag = 7");
-				printTermine(woche.termine, sc.nextInt() - 1);
+				System.out.println(woche.printTermine(getIntegerValue() - 1));
 				break;
 			case "PRINTALL":
-				printTermine(woche);
+				System.out.println(woche.printTermine());
 				break;
 			case "RENAME":
 				System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
@@ -143,9 +150,7 @@ public class Main {
 						if (input2.equals("y")) {
 							System.out.println("Geben Sie den neuen Namen des Termins ein");
 							String newName = sc.next();
-							for (int i = 0; i < woche.termine[tag2][beginn2].dauer; i++) {
-								woche.termine[tag2][beginn2 + i].setName(newName);
-							}
+							woche.getTermin(tag2, beginn2).setName(newName);
 							System.out.println("Termin erfolgreich umbenannt");
 						}
 					} else {
@@ -184,64 +189,6 @@ public class Main {
 			}
 		}
 
-	}
-
-	public static Termin addTermin(String name, int beginn, int ende) {
-		return new Termin(name, beginn, ende);
-	}
-
-	public static void printTermine(Wochenplan woche) {
-		boolean anyTermin = false;
-		for (int tag = 0; tag < 7; tag++) {
-			if (woche.existsTermin(tag))
-				switch (tag) {
-				case 0:
-					System.out.println("Montag:");
-					break;
-				case 1:
-					System.out.println("Dienstag:");
-					break;
-				case 2:
-					System.out.println("Mittwoch:");
-					break;
-				case 3:
-					System.out.println("Donnerstag:");
-					break;
-				case 4:
-					System.out.println("Freitag:");
-					break;
-				case 5:
-					System.out.println("Samstag:");
-					break;
-				case 6:
-					System.out.println("Sonntag:");
-					break;
-				}
-			for (int i = 0; i < 96; i++) {
-				if (woche.termine[tag][i] != null) {
-					System.out.println(woche.termine[tag][i]);
-					i += woche.termine[tag][i].dauer;
-					anyTermin = true;
-				}
-			}
-		}
-
-		if (!anyTermin)
-			System.out.println("Es wurden noch keine Termine eingetragen");
-	}
-
-	public static void printTermine(Termin[][] termine, int tag) {
-		boolean anyTermin = false;
-		for (int i = 0; i < 96; i++) {
-			if (termine[tag][i] != null) {
-				System.out.println(termine[tag][i]);
-				i += termine[tag][i].dauer - 1;
-				anyTermin = true;
-			}
-		}
-
-		if (!anyTermin)
-			System.out.println("Es wurden noch keine Termine eingetragen");
 	}
 
 	public static int getIntegerValue() {
