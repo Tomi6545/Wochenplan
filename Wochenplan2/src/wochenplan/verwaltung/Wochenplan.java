@@ -12,22 +12,18 @@ import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
 public class Wochenplan {
 
-	private Termin[][] termine = new Termin[7][96];
+	private Termin[][] termine;
 
 	public Wochenplan() {
-		//this(null);
+		this(new Termin[7][96]);
 	}
 	
 	public Wochenplan(Termin[][] termine) {
-		super();
 		this.termine = termine;
 	}
 
 	public Wochenplan(Wochenplan plan) {
-		if (plan == null)
-			return;
-		
-		this.termine = plan.termine.clone();
+		this(plan.termine.clone());
 	}
 	
 	
@@ -36,7 +32,7 @@ public class Wochenplan {
 	 * Wenn an der Stelle schon ein Termin existiert tritt eine @TerminAddException auf
 	 */
 	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException,InvalidTimeException {
-		if(!TerminZeit.isValidTime(tag, beginn) || !TerminZeit.isValidTime(tag, ende))
+		if(!TerminZeit.isValidTime(tag, beginn, ende))
 			throw new InvalidTimeException();
 		
 		Termin[][] copy = termine.clone();
@@ -112,7 +108,7 @@ public class Wochenplan {
 
 
 	/**
-	 * Returnt einen Termin falls vorhanden, sonst null
+	 * Returnt einen @Termin falls vorhanden, sonst null
 	 */
 	public Termin getTermin(int tag, int zeitslot) {
 		return existsTermin(tag, zeitslot) ? termine[tag][zeitslot] : null;
@@ -139,14 +135,14 @@ public class Wochenplan {
 
 	
 	/**
-	 * Returnt true, wenn ein Termin an dieser Stelle eingetragen ist
+	 * Returnt true, wenn ein @Termin an dieser Stelle eingetragen ist
 	 */
 	public boolean existsTermin(int tag, int zeitslot) {
 		return termine[tag][zeitslot] != null;
 	}
 	
 	/**
-	 * Returnt true, wenn an diesem Tag mindestens ein Termin eingetragen ist
+	 * Returnt true, wenn an diesem Tag mindestens ein @Termin eingetragen ist
 	 */
 	public boolean existsTermin(int tag) {
 		for(int i = 0; i < termine[tag].length; i++) {
@@ -158,7 +154,7 @@ public class Wochenplan {
 	}
 
 	/**
-	 * Returnt true, wenn ein Termin mit diesem Namen eingetragen ist
+	 * Returnt true, wenn ein @Termin mit diesem Namen eingetragen ist
 	 */
 	public boolean existsTermin(String name) {
 		for (int i = 0; i < termine.length; i++)
@@ -170,7 +166,7 @@ public class Wochenplan {
 	}
 	
 	/**
-	 * Returnt die TerminZeit falls dieser Termin existiert.
+	 * Returnt die @TerminZeit falls dieser @Termin existiert.
 	 * Ansonsten wird null returnt
 	 */
 	public TerminZeit getDuration(Termin termin) {
@@ -198,6 +194,16 @@ public class Wochenplan {
 		}
 	}
 	
+	public String printTermin(int tag, int zeitslot) {
+		String output = "";
+		if(existsTermin(tag, zeitslot)) {
+			Termin termin = getTermin(tag,zeitslot);
+			TerminZeit dauer = getDuration(termin);
+			output = output += "\n" + TerminZeit.formatTime(dauer.getStart())  + " - " + TerminZeit.formatTime(dauer.getEnde()) + ": " +  termin.toString();
+
+		}
+		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
 
 	public String printTermine(int tag) {
 		String output = "";
@@ -232,18 +238,6 @@ public class Wochenplan {
 		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
 	}
 	
-	public String printTermin(int tag, int zeitslot) {
-		String output = "";
-		if(existsTermin(tag, zeitslot)) {
-			Termin termin = getTermin(tag,zeitslot);
-			TerminZeit dauer = getDuration(termin);
-			output = output += "\n" + TerminZeit.formatTime(dauer.getStart())  + " - " + TerminZeit.formatTime(dauer.getEnde()) + ": " +  termin.toString();
-
-		}
-		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
-	}
-	
-
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

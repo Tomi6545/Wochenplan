@@ -76,6 +76,7 @@ public class Main {
 
 				try {
 					woche.addTermin(TerminBezeichner, tag, beginn, ende);
+					System.out.println("Termin wurde erfolgreich hinzugefügt");
 				} catch (TerminAddException e1) {
 					System.out.println("Termin existiert bereits an diesem Zeitpunkt");
 				} catch (InvalidTimeException e) {

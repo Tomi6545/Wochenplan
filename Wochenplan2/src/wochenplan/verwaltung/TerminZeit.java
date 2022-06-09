@@ -101,11 +101,12 @@ public class TerminZeit {
 		return 0 <= tag && tag <= 6 && 0 <= zeitslot && zeitslot <= 95;
 	}
 	
+	public static boolean isValidTime(int tag, int start, int ende) {
+		return isValidTime(tag, start) && isValidTime(tag, ende) && start < ende;
+	}
+	
 	public static TerminZeit create(int tag, int start, int ende) throws InvalidTimeException {
-		if(!isValidTime(tag, start) || !isValidTime(tag, ende))
-			throw new InvalidTimeException();
-		
-		if(start >= ende)
+		if(!isValidTime(tag, start, ende))
 			throw new InvalidTimeException();
 			
 		return new TerminZeit(tag, start, ende);
