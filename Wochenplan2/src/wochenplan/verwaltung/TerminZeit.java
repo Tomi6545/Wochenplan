@@ -1,5 +1,7 @@
 package wochenplan.verwaltung;
 
+import java.text.DecimalFormat;
+
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 
 public class TerminZeit {
@@ -33,7 +35,7 @@ public class TerminZeit {
 	@Override
 	public String toString() {
 		try {
-			return convertIntToTag(tag) + start + " - " + ende;
+			return convertIntToTag(tag) + " " + formatTime(start) + " - " + formatTime(ende);
 		} catch (InvalidTimeException e) {
 			return "Ungültige Zeit";
 		}
@@ -81,13 +83,24 @@ public class TerminZeit {
 		}
 	}
 	
+	public static String formatTime(int time) {
+		int stunden = (int) (time / 4);
+		int minuten = (int) (((double) (time) / 4 % 1) * 60);
+		String bMinuten = String.valueOf(minuten);
+		
+		if (bMinuten.equals("0")) {
+			bMinuten += "0";
+		}
+		
+		return stunden + ":" + bMinuten;
+	}
 	
 	
 	/**
 	 * returnt true wenn es eine gültige Zeit für einen Termin ist
 	 */
 	public static boolean isValidTime(int tag, int zeitslot) {
-		return 0 <= tag && tag <= 6 && 0 <= zeitslot && zeitslot <= 47;
+		return 0 <= tag && tag <= 6 && 0 <= zeitslot && zeitslot <= 95;
 	}
 	
 	public static TerminZeit create(int tag, int start, int ende) throws InvalidTimeException {

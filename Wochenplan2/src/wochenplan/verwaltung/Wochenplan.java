@@ -12,7 +12,7 @@ import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
 public class Wochenplan {
 
-	Termin[][] termine = new Termin[7][96];
+	private Termin[][] termine = new Termin[7][96];
 
 	public Wochenplan() {
 		//this(null);
@@ -27,7 +27,7 @@ public class Wochenplan {
 		if (plan == null)
 			return;
 		
-		this.termine = plan.termine;
+		this.termine = plan.termine.clone();
 	}
 	
 	
@@ -35,9 +35,12 @@ public class Wochenplan {
 	 * Versucht einen @Termin hinzuzufügen
 	 * Wenn an der Stelle schon ein Termin existiert tritt eine @TerminAddException auf
 	 */
-	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException {
+	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException,InvalidTimeException {
+		if(!TerminZeit.isValidTime(tag, beginn) || !TerminZeit.isValidTime(tag, ende))
+			throw new InvalidTimeException();
+		
 		Termin[][] copy = termine.clone();
-		Termin termin = new Termin(name, beginn, ende); 
+		Termin termin = new Termin(name); 
 		for (int i = beginn; i < ende; i++) {
 			if(existsTermin(tag, i))
 					throw new TerminAddException();
@@ -51,7 +54,9 @@ public class Wochenplan {
 	 * Versucht einen @Termin zu entfernen
 	 * Wenn dieser nicht existiert tritt eine @TerminRemoveException auf
 	 */
-	public void removeTermin(int tag, int zeitslot) throws TerminRemoveException {
+	public void removeTermin(int tag, int zeitslot) throws TerminRemoveException,InvalidTimeException {
+		if(!TerminZeit.isValidTime(tag, zeitslot))
+			throw new InvalidTimeException();
 		if(!existsTermin(tag, zeitslot))
 			throw new TerminRemoveException();
 		
@@ -184,6 +189,41 @@ public class Wochenplan {
 			return null;
 		}
 	}
+	
+
+	public String printTermine(int tag) {
+		String output = "";
+		if (existsTermin(tag)) {
+			try {
+				output += TerminZeit.convertIntToTag(tag);
+			} catch (InvalidTimeException e) {
+				output += "???";
+			}
+			for (int i = 0; i < termine[tag].length; i++) {
+				if(existsTermin(tag, i)) {
+					Termin termin = getTermin(tag, i);
+					TerminZeit dauer = getDuration(termin);
+					output += "\n" + TerminZeit.formatTime(dauer.getStart())  + " - " + TerminZeit.formatTime(dauer.getEnde()) + ": " +  termin.toString();
+					i += dauer.getDauer();
+				}
+			}
+		}
+
+		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
+	
+	public String printTermine() {
+		String output = "";
+		for(int i = 0; i < termine.length; i++) {
+			if(!existsTermin(i))
+				continue;
+			
+			output += printTermine(i);
+		}
+		
+		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
+	
 
 	@Override
 	public String toString() {
@@ -191,10 +231,13 @@ public class Wochenplan {
 		boolean anyTermin = false;
 		for (int tag = 0; tag < 7; tag++) {
 			for (int i = 0; i < 96; i++) {
-				if (termine[tag][i] != null) {
-					builder.append(termine[tag][i] + "\n");
-					System.out.println();
-					i += termine[tag][i].dauer;
+				if (existsTermin(tag, i)) {
+					Termin termin = getTermin(tag, i);
+					TerminZeit dauer = getDuration(termin);
+					
+					i += dauer.getDauer();
+					
+					builder.append(termin.getName() + " " + dauer.getStart() + " - " + dauer.getEnde() + "\n");
 					anyTermin = true;
 				}
 			}
