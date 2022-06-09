@@ -211,7 +211,7 @@ public class Wochenplan {
 				if(existsTermin(tag, i)) {
 					Termin termin = getTermin(tag, i);
 					TerminZeit dauer = getDuration(termin);
-					output += "\n" + TerminZeit.formatTime(dauer.getStart())  + " - " + TerminZeit.formatTime(dauer.getEnde()) + ": " +  termin.toString();
+					output += printTermin(tag, i);
 					i += dauer.getDauer();
 				}
 			}
