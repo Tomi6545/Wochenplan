@@ -81,9 +81,9 @@ public class Main {
 				System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welchen Sie löschen möchten.");
 				int tag1 = sc.nextInt() - 1;
 				int beginn1 = (int) (sc.nextDouble() * 4);
-				
+
 				try {
-					if(!woche.existsTermin(tag1, beginn1)) {
+					if (!woche.existsTermin(tag1, beginn1)) {
 						throw new TerminRemoveException();
 					}
 					System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
@@ -111,47 +111,37 @@ public class Main {
 				System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
 				System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
 				System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
-				String choice = sc.next();
-				switch (choice.toUpperCase()) {
-				case "NAME":
+				String s = sc.next();
+				int tag2;
+				int beginn2;
+				if (s.toUpperCase().equals("NAME")) {
 					System.out.println("Geben Sie den Namen des Termins ein, welches Sie umbenennen möchten");
 					String oldName = sc.next();
-					if (woche.existsTermin(oldName)) {
-						System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
-						System.out.println(woche.getTermin(oldName));
-						System.out.println("y für yes oder n für no");
-						String input1 = sc.next();
-						if (input1.equals("y")) {
-							System.out.println("Geben Sie den neuen Namen des Termins ein");
-							String newName = sc.next();
-							woche.getTermin(oldName).setName(newName);
-							System.out.println("Termin erfolgreich umbenannt");
-						}
-					}
-					break;
-				case "TIME":
+					beginn2 = woche.getTermin(oldName).beginn;
+					tag2 = 4;
+				} else {
 					System.out.println(
-							"Gebe Sie den Tag und den Startpunkt des Termins ein, welches Sie umbennen möchten.");
-					int tag2 = sc.nextInt() - 1;
-					int beginn2 = (int) (sc.nextDouble() * 4);
+							"Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie umbennen möchten.");
+					tag2 = sc.nextInt() - 1;
+					beginn2 = (int) (sc.nextDouble() * 4);
+				}
 
-					if (woche.existsTermin(tag2, beginn2)) {
-						System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
-						System.out.println(woche.getTermin(tag2, beginn2));
-						System.out.println("y für yes oder n für no");
-						String input2 = sc.next();
-						if (input2.equals("y")) {
-							System.out.println("Geben Sie den neuen Namen des Termins ein");
-							String newName = sc.next();
-							for (int i = 0; i < woche.termine[tag2][beginn2].dauer; i++) {
-								woche.termine[tag2][beginn2 + i].setName(newName);
-							}
-							System.out.println("Termin erfolgreich umbenannt");
-						}
-					} else {
-						System.out.println("Termin exisitert nicht");
+				try {
+					if (!woche.existsTermin(tag2, beginn2)) {
+						throw new TerminRemoveException();
 					}
-					break;
+					System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
+					System.out.println(woche.getTermin(tag2, beginn2));
+					System.out.println("y für yes oder n für no");
+					String input2 = sc.next();
+					if (input2.equals("y")) {
+						System.out.println("Geben Sie den neuen Namen des Termins ein");
+						String newName = sc.next();
+						woche.renameTermin(tag2, beginn2, newName);
+						System.out.println("Termin erfolgreich umbenannt");
+					}
+				} catch (TerminRemoveException e) {
+					System.out.println("Termin existiert nicht");
 				}
 				break;
 			case "END":
