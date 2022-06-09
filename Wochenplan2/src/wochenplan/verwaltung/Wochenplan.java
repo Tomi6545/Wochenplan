@@ -82,6 +82,34 @@ public class Wochenplan {
 			slot--;
 		}
 	}
+	
+	public void renameTermin(int tag, int zeitslot, String newName) throws TerminRemoveException {
+		if(!existsTermin(tag, zeitslot))
+			throw new TerminRemoveException();
+		
+		Termin termin = termine[tag][zeitslot];
+		
+		// ALLE EINTRÄGE DES TERMINS DIE SPÄTER SIND ENTFERNEN
+		int slot = zeitslot;
+		while (slot < termine[tag].length) {
+			if (termine[tag][slot] != termin)
+				break;
+
+			termine[tag][slot].setName(newName);;
+			slot++;
+		}
+
+		// ALLE EINTRÄGE DER TERMINS DIE FRÜHER SIND ENTFERNEN
+		slot = zeitslot - 1;
+		while (slot >= 0) {
+			if (termine[tag][slot] != termin)
+				break;
+
+			termine[tag][slot].setName(newName);;
+			slot--;
+		}
+	}
+	
 
 	/**
 	 * Returnt einen Termin falls vorhanden, sonst null
