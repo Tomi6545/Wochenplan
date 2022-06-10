@@ -186,17 +186,22 @@ public class Wochenplan {
 		return getTermine(tag, null);
 	}
 
-	public List<Termin> getTermine(String name) throws InvalidTimeException {
+	public List<Termin> getTermine(String name) {
 		List<Termin> termine = new ArrayList<>();
 
+		
 		for (int day = 0; day < this.termine.length; day++) {
-			termine.addAll(getTermine(day, name));
+			try {
+				termine.addAll(getTermine(day, name));
+			} catch(InvalidTimeException e) {
+			}
 		}
+		
 
 		return termine;
 	}
 
-	public List<Termin> getTermine() throws InvalidTimeException {
+	public List<Termin> getTermine() {
 		return getTermine(null);
 	}
 

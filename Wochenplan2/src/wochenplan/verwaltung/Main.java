@@ -62,33 +62,35 @@ public class Main {
 
 			switch (funct.toUpperCase()) {
 			case "HELP":
+			case "MENU":
 				menu();
 				break;
 			case "ADD":
 				try {
 					System.out.println("Geben Sie den Wochentag ein, an dem sie einen Termin hinzufügen wollen");
-					System.out.println("Montag, Dienstag, Mittwoch, Donnersta, Freitag; Samstag, Sonntag");
-					int tag = TerminZeit.convertTagToInt(sc.next());
+					showTagOptions();
+					int tag = TerminZeit.convertTagToInt(
+							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
 
 					System.out.println("Geben Sie die Start- und Enduhrzeit an (z.B. 13:30 Uhr als 13,5)");
-					int beginn = (int) (getDoubleValue() * 4);
-					int ende = (int) (getDoubleValue() * 4);
+
+					int beginn = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
+					int ende = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
 
 					System.out.println("Geben Sie den Namen des Termins ein");
-					String TerminBezeichner = sc.next();
+					String terminBezeichner = sc.nextLine();
 
-					woche.addTermin(TerminBezeichner, tag, beginn, ende);
+					woche.addTermin(terminBezeichner, tag, beginn, ende);
 					System.out.println("Termin wurde erfolgreich hinzugefügt");
 					System.out.println("Möchten Sie noch den Hin- oder Rückweg eintragen?");
 					System.out.println("y für yes oder n für no");
-					String input = getStringValue("y", "n");
-					if (input.equals("y")) {
+					if (getStringValue("y", "n").equals("y")) {
 						System.out.printf("%-4s  %s%n", "h", "für den Hinweg");
 						System.out.printf("%-4s  %s%n", "r", "für den Rückweg");
 						System.out.printf("%-4s  %s%n", "hr", "für den Hin- und Rückweg");
 						String weg = getStringValue("h", "r", "hr");
 						System.out.println("Geben Sie die Dauer des Weges in Minuten ein");
-						int wegDauer = getIntegerValue() / 15;
+						int wegDauer = (int) Math.ceil(getIntegerValue() / 15.0);
 						if (weg.equals("h")) {
 							woche.addHinweg(tag, beginn, ende, wegDauer);
 							System.out.println("Hinweg wurde erfolgreich hinzugefügt");
@@ -101,7 +103,7 @@ public class Main {
 							System.out.println("Hin- und Rückweg wurden erfolgreich hinzugefügt");
 						}
 					}
-				} catch (TerminAddException e1) {
+				} catch (TerminAddException e) {
 					System.out.println("Termin existiert bereits an diesem Zeitpunkt");
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit!");
@@ -113,9 +115,12 @@ public class Main {
 				break;
 			case "PRINT":
 				System.out.println("Geben Sie den gewünschten Wochentag ein");
-				System.out.println(
-						"Montag = 1, Dienstag = 2; Mittwoch = 3, Donnerstag = 4, Freitag = 5; Samstag = 6, Sonntag = 7");
-				System.out.println(woche.printTermine(getIntegerValue() - 1));
+				showTagOptions();
+				try {
+					System.out.println(woche.printTermine(TerminZeit.convertTagToInt(getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"))));
+				} catch (InvalidTimeException e) {
+					System.out.println("Ungültige Zeit");
+				}
 				break;
 			case "PRINTALL":
 				System.out.println(woche.printTermine());
@@ -129,7 +134,7 @@ public class Main {
 				break;
 			case "SAVE":
 				System.out.println("Geben Sie einen Namen für die Datei an");
-				String filename = sc.next();
+				String filename = sc.nextLine();
 				try {
 					woche.saveAsFile(filename);
 					System.out.println("Wochenplan wurde erfolgreich als Datei abgespeichert!");
@@ -139,7 +144,7 @@ public class Main {
 				break;
 			case "LOAD":
 				System.out.println("Geben Sie den Namen der Datei an");
-				String filename2 = sc.next();
+				String filename2 = sc.nextLine();
 				try {
 					woche = Wochenplan.fromFile(new File(filename2));
 					System.out.println("Wochenplan wurde erfolgreich aus der Datei geladen!");
@@ -153,7 +158,7 @@ public class Main {
 				String searchName = null;
 				if (getStringValue("y", "n").equals("y")) {
 					System.out.println("Geben Sie den Namen ein");
-					searchName = sc.next();
+					searchName = sc.nextLine();
 				}
 
 				System.out.println("Wählen Sie eine Option aus");
@@ -174,8 +179,7 @@ public class Main {
 					System.out.println("Geben Sie einen Tag ein");
 					showTagOptions();
 					try {
-						searchTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mitwoch",
-								"Donnerstag", "Freitag", "Samstag", "Sonntag"));
+						searchTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mitwoch","Donnerstag", "Freitag", "Samstag", "Sonntag"));
 					} catch (InvalidTimeException e) {
 						searchTag = -1;
 					}
@@ -204,7 +208,7 @@ public class Main {
 				break;
 			default:
 				System.out.println("Keine gültige Eingabe!");
-				System.out.println("Geben sie HELP für Hilfe ein");
+				System.out.println("Geben Sie HELP für Hilfe ein");
 				break;
 			}
 		}
@@ -262,72 +266,71 @@ public class Main {
 		System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
 		System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
 		System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
-		String s2 = getStringValue("name", "time");
-		int tag2 = 0;
-		int beginn2 = 0;
-		if (s2.equals("name")) {
-			System.out.println("Geben Sie den Namen des Termins ein, welches Sie " + option + " möchten");
-			String oldName = sc.next();
-			try {
+		String select = getStringValue("name", "time");
+		int tag = 0;
+		int beginn = 0;
+
+		try {
+			if (select.equals("name")) {
+				System.out
+						.println("Geben Sie den Namen des Termins ein, welchen Sie " + option.getAction() + " möchten");
+				String oldName = sc.nextLine();
 				if (woche.getTermine(oldName).size() == 1) {
-					beginn2 = woche.getTerminTime(oldName);
-					tag2 = woche.getTerminDay(oldName);
+					beginn = woche.getTerminTime(oldName);
+					tag = woche.getTerminDay(oldName);
 				} else {
-					System.out.println("Welches der folgenden Termine möchten Sie " + option + "?");
+					System.out.println("Welchen der folgenden Termine möchten Sie " + option.getAction() + "?");
 					for (Termin s : woche.getTermine(oldName)) {
 						System.out.println(woche.printTerminWithDay(s));
 					}
-					System.out.println(
-							"Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie " + option + " möchten.");
-					tag2 = getIntegerValue() - 1;
-					beginn2 = (int) (getDoubleValue() * 4);
+					System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welchen Sie "
+							+ option.getAction() + " möchten.");
+					showTagOptions();
+					tag = TerminZeit.convertTagToInt(
+							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
+					beginn = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
 				}
-			} catch (InvalidTimeException e) {
-				System.out.println("Problem mit der Liste");
+			} else {
+				System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie "
+						+ option.getAction() + " möchten.");
+				showTagOptions();
+				tag = TerminZeit.convertTagToInt(
+						getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
+				beginn = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
 			}
-		} else {
-			System.out
-					.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie " + option + " möchten.");
-			tag2 = getIntegerValue() - 1;
-			beginn2 = (int) (getDoubleValue() * 4);
-		}
 
-		try {
-			if (!woche.existsTermin(tag2, beginn2)) {
+			if (!woche.existsTermin(tag, beginn)) {
 				throw new TerminExistenceException();
-
 			}
-			Termin termin = woche.getTermin(tag2, beginn2);
+
+			Termin termin = woche.getTermin(tag, beginn);
 			TerminZeit zeit = woche.getTerminDuration(termin);
 			System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
 			System.out.println(woche.printTerminWithDay(termin));
 			System.out.println("y für yes oder n für no");
-			String input2 = getStringValue("y", "n");
-			if (input2.equals("y")) {
+			if (getStringValue("y", "n").equals("y")) {
 				if (option == TerminEditOptions.RENAME) {
 					System.out.println("Geben Sie den neuen Namen des Termins ein");
-					String newName = sc.next();
-					woche.renameTermin(tag2, beginn2, newName);
+					String newName = sc.nextLine();
+					woche.renameTermin(tag, beginn, newName);
 					System.out.println("Termin erfolgreich umbenannt");
 				} else {
-					woche.removeTermin(tag2, beginn2);
-					if (woche.getTermin(tag2, beginn2 - 1) instanceof Weg) {
-						woche.removeTermin(tag2, beginn2 - 1);
+					woche.removeTermin(tag, beginn);
+					if (woche.getTermin(tag, beginn - 1) instanceof Weg) {
+						woche.removeTermin(tag, beginn - 1);
 					}
-					if (woche.getTermin(tag2, zeit.getEnde() + 1) instanceof Weg) {
-						woche.removeTermin(tag2, zeit.getEnde() + 1);
+					if (woche.getTermin(tag, zeit.getEnde() + 1) instanceof Weg) {
+						woche.removeTermin(tag, zeit.getEnde() + 1);
 					}
 					System.out.println("Termin erfolgreich gelöscht");
 				}
 			} else {
 				System.out.println("Vorgang abgrebrochen");
 			}
-
 		} catch (TerminExistenceException e) {
 			System.out.println("Termin existiert nicht");
-		} catch (InvalidTimeException | IndexOutOfBoundsException e) {
+		} catch (InvalidTimeException e) {
 			System.out.println("Ungültige Zeit");
 		}
-
 	}
 }
