@@ -191,6 +191,7 @@ public class Main {
 				}
 				break;
 			case "FIND":
+
 				break;
 			case "DEBUG":
 				System.out.println(woche.printArray());
@@ -273,7 +274,7 @@ public class Main {
 		try {
 			if (!woche.existsTermin(tag2, beginn2)) {
 				throw new TerminRemoveException();
-				
+
 			}
 			if (woche.existsTermin(tag2, beginn2)) {
 				System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
@@ -288,6 +289,9 @@ public class Main {
 						System.out.println("Termin erfolgreich umbenannt");
 					} else {
 						woche.removeTermin(tag2, beginn2);
+						if (woche.getTermin(tag2, beginn2 - 1) instanceof Weg) {
+							woche.removeTermin(tag2, beginn2 - 1);
+						}
 						System.out.println("Termin erfolgreich gelöscht");
 					}
 				} else {

@@ -48,6 +48,18 @@ public class Wochenplan {
 	public void addHinweg(int tag, int beginn, int ende, int wegDauer) throws TerminAddException, InvalidTimeException {
 		
 			addTermin("Weg", tag, beginn - wegDauer, beginn);
+			if (!TerminZeit.isValidTime(tag, beginn - wegDauer, beginn))
+				throw new InvalidTimeException();
+
+			Termin[][] copy = termine.clone();
+			Termin termin = new Weg("Hinweg");
+			for (int i = beginn - wegDauer; i < beginn; i++) {
+				if (existsTermin(tag, i))
+					throw new TerminAddException();
+				copy[tag][i] = termin;
+			}
+
+			termine = copy;
 		}
 
 	/**
