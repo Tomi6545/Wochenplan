@@ -88,12 +88,17 @@ public class TerminZeit {
 		int stunden = (int) (time / 4);
 		int minuten = (int) (((double) (time) / 4 % 1) * 60);
 		String bMinuten = String.valueOf(minuten);
+		String bStunden = String.valueOf(stunden);
 		
-		if (bMinuten.equals("0")) {
-			bMinuten += "0";
+		if(stunden < 10) {
+			bStunden = "0" + bStunden;
 		}
 		
-		return stunden + ":" + bMinuten;
+		if (bMinuten.equals("0")) {
+			bMinuten = "00";
+		}
+		
+		return bStunden + ":" + bMinuten;
 	}
 	
 	public static int convertTimeToTimeSlot(double time) {
