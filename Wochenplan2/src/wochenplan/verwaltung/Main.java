@@ -86,12 +86,19 @@ public class Main {
 						System.out.printf("%-4s  %s%n", "h", "für den Hinweg");
 						System.out.printf("%-4s  %s%n", "r", "für den Rückweg");
 						System.out.printf("%-4s  %s%n", "hr", "für den Hin- und Rückweg");
-						String weg = getStringValue("h", "r");
+						String weg = getStringValue("h", "r", "hr");
+						System.out.println("Geben Sie die Dauer des Weges in Minuten ein");
+						int wegDauer = getIntegerValue() / 15;
 						if (weg.equals("h")) {
-							System.out.println("Geben Sie die Dauer des Weges in Minuten ein");
-							int wegDauer = getIntegerValue() / 15;
 							woche.addHinweg(tag, beginn, ende, wegDauer);
 							System.out.println("Hinweg wurde erfolgreich hinzugefügt");
+						} else if (weg.equals("r")) {
+							woche.addRückweg(tag, beginn, ende, wegDauer);
+							System.out.println("Rückweg wurde erfolgreich hinzugefügt");
+						} else {
+							woche.addHinweg(tag, beginn, ende, wegDauer);
+							woche.addRückweg(tag, beginn, ende, wegDauer);
+							System.out.println("Hin- und Rückweg wurden erfolgreich hinzugefügt");
 						}
 					}
 				} catch (TerminAddException e1) {
@@ -290,30 +297,32 @@ public class Main {
 				throw new TerminExistenceException();
 
 			}
-			if (woche.existsTermin(tag2, beginn2)) {
-				System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
-				System.out.println(woche.printTerminWithDay(woche.getTermin(tag2, beginn2)));
-				System.out.println("y für yes oder n für no");
-				String input2 = getStringValue("y", "n");
-				if (input2.equals("y")) {
-					if (option.equals("umbenennen")) {
-						System.out.println("Geben Sie den neuen Namen des Termins ein");
-						String newName = sc.next();
-						woche.renameTermin(tag2, beginn2, newName);
-						System.out.println("Termin erfolgreich umbenannt");
-					} else {
-						woche.removeTermin(tag2, beginn2);
-						if (woche.getTermin(tag2, beginn2 - 1) instanceof Weg) {
-							woche.removeTermin(tag2, beginn2 - 1);
-						}
-						System.out.println("Termin erfolgreich gelöscht");
-					}
+			Termin termin = woche.getTermin(tag2, beginn2);
+			TerminZeit zeit = woche.getTerminDuration(termin);
+			System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
+			System.out.println(woche.printTerminWithDay(termin));
+			System.out.println("y für yes oder n für no");
+			String input2 = getStringValue("y", "n");
+			if (input2.equals("y")) {
+				if (option.equals("umbenennen")) {
+					System.out.println("Geben Sie den neuen Namen des Termins ein");
+					String newName = sc.next();
+					woche.renameTermin(tag2, beginn2, newName);
+					System.out.println("Termin erfolgreich umbenannt");
 				} else {
-					System.out.println("Vorgang abgrebrochen");
+					woche.removeTermin(tag2, beginn2);
+					if (woche.getTermin(tag2, beginn2 - 1) instanceof Weg) {
+						woche.removeTermin(tag2, beginn2 - 1);
+					}
+					if (woche.getTermin(tag2, zeit.getEnde() + 1) instanceof Weg) {
+						woche.removeTermin(tag2, zeit.getEnde() + 1);
+					}
+					System.out.println("Termin erfolgreich gelöscht");
 				}
 			} else {
-				System.out.println("Termin exisitert nicht");
+				System.out.println("Vorgang abgrebrochen");
 			}
+
 		} catch (TerminExistenceException e) {
 			System.out.println("Termin existiert nicht");
 		} catch (InvalidTimeException | IndexOutOfBoundsException e) {
