@@ -65,19 +65,18 @@ public class Main {
 				menu();
 				break;
 			case "ADD":
-				System.out.println("Geben Sie den Wochentag ein, an dem sie einen Termin hinzufügen wollen");
-				System.out.println(
-						"Montag = 1, Dienstag = 2; Mittwoch = 3, Donnerstag = 4, Freitag = 5; Samstag = 6, Sonntag = 7");
-				int tag = getIntegerValue() - 1;
-
-				System.out.println("Geben Sie die Start- und Enduhrzeit an (z.B. 13:30 Uhr als 13,5)");
-				int beginn = (int) (getDoubleValue() * 4);
-				int ende = (int) (getDoubleValue() * 4);
-
-				System.out.println("Geben Sie den Namen des Termins ein");
-				String TerminBezeichner = sc.next();
-
 				try {
+					System.out.println("Geben Sie den Wochentag ein, an dem sie einen Termin hinzufügen wollen");
+					System.out.println("Montag, Dienstag, Mittwoch, Donnersta, Freitag; Samstag, Sonntag");
+					int tag = TerminZeit.convertTagToInt(sc.next());
+
+					System.out.println("Geben Sie die Start- und Enduhrzeit an (z.B. 13:30 Uhr als 13,5)");
+					int beginn = (int) (getDoubleValue() * 4);
+					int ende = (int) (getDoubleValue() * 4);
+
+					System.out.println("Geben Sie den Namen des Termins ein");
+					String TerminBezeichner = sc.next();
+					
 					woche.addTermin(TerminBezeichner, tag, beginn, ende);
 					System.out.println("Termin wurde erfolgreich hinzugefügt");
 					System.out.println("Möchten Sie noch den Hin- oder Rückweg eintragen?");
@@ -221,6 +220,52 @@ public class Main {
 				}
 				break;
 			case "SEARCH":
+				System.out.println("Möchten Sie einen bestimmten Termin mit Namen suchen?");
+				System.out.println("y für yes oder n für no");
+				String searchName = null; 
+				if(getStringValue("y", "n").equals("y")) {
+					System.out.println("Geben Sie den Namen ein");
+					searchName = sc.next();
+				}
+				
+				System.out.println("Wählen Sie eine Option aus");
+				System.out.printf("%-7s  %s%n", "now", "ab der aktuellen Systemzeit suchen");
+				System.out.printf("%-7s  %s%n", "time", "ab einer bestimmten Zeit suchen");
+				System.out.printf("%-7s  %s%n", "all", "im ganzen Wochenplan suchen");
+				String searchOption = getStringValue("now", "time","all");
+				
+				int searchTag;
+				int searchZeitSlot;
+				
+				switch(searchOption.toLowerCase()) {
+					case "now":
+						searchTag = TerminZeit.getTodayAsInt();
+						searchZeitSlot = TerminZeit.getCurrentTimeAsTimeSlot();
+						break;
+					case "time":
+						System.out.println("Geben Sie einen Tag ein");
+						showTagOptions();
+						try {
+							searchTag =  TerminZeit.convertTagToInt(getStringValue("Montag","Dienstag","Mitwoch","Donnerstag","Freitag","Samstag","Sonntag"));
+						} catch (InvalidTimeException e) {
+							searchTag = -1;
+						}
+						System.out.println("Geben Sie eine Uhrzeit ein");
+						showZeitOptions();
+						searchZeitSlot = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
+						break;
+					default:
+						searchTag = 0;
+						searchZeitSlot = 0;
+						break;
+				}
+				
+				try {
+					Termin termin = woche.getNextTermin(searchTag, searchZeitSlot, searchName);
+					System.out.println(woche.printTermin(termin));
+				} catch (InvalidTimeException e) {
+					System.out.println("Ungültige Zeit");
+				}
 				break;	
 			case "FIND":
 				break;
@@ -229,10 +274,19 @@ public class Main {
 				break;
 			default:
 				System.out.println("Keine gültige Eingabe!");
+				System.out.println("Geben sie HELP für Hilfe ein");
 				break;
 			}
 		}
 
+	}
+	
+	public static void showTagOptions() {
+		System.out.println("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag");
+	}
+	
+	public static void showZeitOptions() {
+		System.out.println("z.B. 13:30 Uhr als 13,5");
 	}
 
 	public static int getIntegerValue() {
@@ -259,17 +313,18 @@ public class Main {
 		}
 	}
 
-	public static String getStringValue(String s1, String s2) {
+	public static String getStringValue(String... values) {
 		String value;
 		while (true) {
 			value = sc.next();
-			if (value.equals(s1)) {
-				return s1;
-			} else if (value.equals(s2)) {
-				return s2;
-			} else {
-				System.out.println("Ungültige Eingabe");
-			}
+			
+			for(String v : values)
+				if(value.equals(v))
+					return value;
+			
+			System.out.println("Ungültige Eingabe");
+			System.out.println("Sie haben folgende Optionen:");
+			System.out.println(String.join(", ", values));
 		}
 	}
 }

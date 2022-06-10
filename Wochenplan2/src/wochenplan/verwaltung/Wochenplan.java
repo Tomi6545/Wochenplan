@@ -36,7 +36,7 @@ public class Wochenplan {
 
 		Termin[][] copy = termine.clone();
 		Termin termin = new Termin(name);
-		for (int i = beginn; i < ende; i++) {
+		for (int i = beginn; i <= ende; i++) {
 			if (existsTermin(tag, i))
 				throw new TerminAddException();
 			copy[tag][i] = termin;
@@ -120,7 +120,54 @@ public class Wochenplan {
 	public Termin getTermin(int tag, int zeitslot) {
 		return existsTermin(tag, zeitslot) ? termine[tag][zeitslot] : null;
 	}
+	
+	public Termin getNextTermin(int tag, int zeitslot, String name) throws InvalidTimeException {
+		if(!TerminZeit.isValidTime(tag, zeitslot))
+			throw new InvalidTimeException();
+		
+		for(int i = tag; i < termine.length; i++)
+			for(int j = zeitslot; j < termine[i].length; j++) {
+				if(existsTermin(i, j) && (name == null || getTermin(i, j).getName().equals(name)))
+					return getTermin(i, j);
+			}
+		
+		return null;
+	}
+	
+	public Termin gextNextTermin(int tag, int zeitslot) throws InvalidTimeException {
+		return getNextTermin(tag, zeitslot, null);
+	}
+	
+	
+	/**
+	 * Returnt die @TerminZeit falls dieser @Termin existiert. Ansonsten wird null
+	 * returnt
+	 */
+	public TerminZeit getTerminDuration(Termin termin) {
+		int tag = -1;
+		int start = -1;
+		int ende = -1;
+		boolean foundTermin = false;
+		DURATIONCHECK: for (int i = 0; i < termine.length; i++)
+			for (int j = 0; j < termine[i].length; j++) {
 
+				if (!foundTermin && termin == getTermin(i, j)) {
+					foundTermin = true;
+					tag = i;
+					start = j;
+				} else if (foundTermin && termin != getTermin(i, j)) {
+					ende = j - 1;
+					break DURATIONCHECK;
+				}
+			}
+
+		try {
+			return TerminZeit.create(tag, start, ende);
+		} catch (InvalidTimeException e) {
+			return null;
+		}
+	}
+	
 	public int getTerminDay(String name) {
 		for (int i = 0; i < termine.length; i++)
 			for (int j = 0; j < termine[i].length; j++)
@@ -167,46 +214,17 @@ public class Wochenplan {
 
 		return false;
 	}
-
-	/**
-	 * Returnt die @TerminZeit falls dieser @Termin existiert. Ansonsten wird null
-	 * returnt
-	 */
-	public TerminZeit getDuration(Termin termin) {
-		int tag = -1;
-		int start = -1;
-		int ende = -1;
-		boolean foundTermin = false;
-		DURATIONCHECK: for (int i = 0; i < termine.length; i++)
-			for (int j = 0; j < termine[i].length; j++) {
-
-				if (!foundTermin && termin == getTermin(i, j)) {
-					foundTermin = true;
-					tag = i;
-					start = j;
-				} else if (foundTermin && termin != getTermin(i, j)) {
-					ende = j - 1;
-					break DURATIONCHECK;
-				}
-			}
-
-		try {
-			return TerminZeit.create(tag, start, ende);
-		} catch (InvalidTimeException e) {
-			return null;
-		}
-	}
-
+	
 	public String printTermin(int tag, int zeitslot) {
 		String output = "";
 		if (existsTermin(tag, zeitslot)) {
 			Termin termin = getTermin(tag, zeitslot);
-			TerminZeit dauer = getDuration(termin);
+			TerminZeit dauer = getTerminDuration(termin);
 			output = output += "\n" + TerminZeit.formatTime(dauer.getStart()) + " - "
 					+ TerminZeit.formatTime(dauer.getEnde()) + ": " + termin.toString();
 
 		}
-		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+		return !output.isEmpty() ? output : "Es wurde kein Termin eingetragen";
 	}
 
 	public String printTermine(int tag) {
@@ -220,7 +238,7 @@ public class Wochenplan {
 			for (int i = 0; i < termine[tag].length; i++) {
 				if (existsTermin(tag, i)) {
 					Termin termin = getTermin(tag, i);
-					TerminZeit dauer = getDuration(termin);
+					TerminZeit dauer = getTerminDuration(termin);
 					output += printTermin(tag, i);
 					i += dauer.getDauer();
 				}
@@ -228,6 +246,11 @@ public class Wochenplan {
 		}
 
 		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
+	
+	public String printTermin(Termin termin) {
+		TerminZeit duration = getTerminDuration(termin);
+		return printTermin(duration.getTag(), duration.getStart());
 	}
 
 	public String printTermine() {
@@ -244,26 +267,7 @@ public class Wochenplan {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		boolean anyTermin = false;
-		for (int tag = 0; tag < 7; tag++) {
-			for (int i = 0; i < 96; i++) {
-				if (existsTermin(tag, i)) {
-					Termin termin = getTermin(tag, i);
-					TerminZeit dauer = getDuration(termin);
-
-					i += dauer.getDauer();
-
-					builder.append(termin.getName() + " " + dauer.getStart() + " - " + dauer.getEnde() + "\n");
-					anyTermin = true;
-				}
-			}
-		}
-
-		if (!anyTermin)
-			builder.append("Es wurden noch keine Termine eingetragen");
-
-		return builder.toString();
+		return printTermine();
 	}
 	
 	public String printArray() {
@@ -305,8 +309,16 @@ public class Wochenplan {
 
 		for (int i = 0; i < termine.length; i++)
 			for (int j = 0; j < termine[i].length; j++) {
-				if (existsTermin(i, j))
-					writer.write(i + "/" + j + ":" + getTermin(i, j).getName() + "\n");
+				if (existsTermin(i, j)) {
+					Termin termin = getTermin(i, j);
+					TerminZeit dauer = getTerminDuration(termin);
+					writer.write(dauer.getTag() + "/" + dauer.getStart() + "-" + dauer.getEnde() + ":" + termin.getName() + "\n");
+					
+					j += dauer.getDauer();
+					
+					System.out.println("START" + dauer.getStart());
+					System.out.println("ENDE" + dauer.getEnde());
+				}
 			}
 
 		writer.close();
@@ -321,13 +333,18 @@ public class Wochenplan {
 		String line;
 		while ((line = reader.readLine()) != null) {
 			try {
-				String[] splittedLine = line.split(":");
+				String[] splittedLineAll = line.split(":");
+				
+				String name = splittedLineAll[1];
+				
+				String[] splittedLineValues = splittedLineAll[0].split("/");
 
-				int tag = Integer.parseInt(splittedLine[0].split("/")[0]);
-				int zeitslot = Integer.parseInt(splittedLine[0].split("/")[1]);
-				String name = splittedLine[1];
+				int tag = Integer.parseInt(splittedLineValues[0]);
+				
+				int start = Integer.parseInt(splittedLineValues[1].split("-")[0]);
+				int ende = Integer.parseInt(splittedLineValues[1].split("-")[1]);
 
-				wochenplan.addTermin(name, tag, zeitslot, zeitslot + 15);
+				wochenplan.addTermin(name, tag, start, ende);
 			} catch (Exception e) {
 			}
 		}

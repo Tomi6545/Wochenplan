@@ -1,5 +1,8 @@
 package wochenplan.verwaltung;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 
 public class TerminZeit {
@@ -62,19 +65,19 @@ public class TerminZeit {
 	
 	public static int convertTagToInt(String tag) throws InvalidTimeException {
 		switch(tag.toLowerCase()) {
-			case "Montag":
+			case "montag":
 				return 0;
-			case "Dienstag":
+			case "dienstag":
 				return 1;
-			case "Mittwoch":
+			case "mittwoch":
 				return 2;
-			case "Donnerstag":
+			case "donnerstag":
 				return 3;
-			case "Freitag":
+			case "freitag":
 				return 4;
-			case "Samstag":
+			case "samstag":
 				return 5;
-			case "Sonntag":
+			case "sonntag":
 				return 6;
 			default:
 				throw new InvalidTimeException();
@@ -82,7 +85,6 @@ public class TerminZeit {
 	}
 	
 	public static String formatTime(int time) {
-		System.out.println(time);
 		int stunden = (int) (time / 4);
 		int minuten = (int) (((double) (time) / 4 % 1) * 60);
 		String bMinuten = String.valueOf(minuten);
@@ -94,6 +96,28 @@ public class TerminZeit {
 		return stunden + ":" + bMinuten;
 	}
 	
+	public static int convertTimeToTimeSlot(double time) {
+		return (int) (time * 4);
+	}
+	
+	public static int getTodayAsInt() {
+		Calendar calendar = Calendar.getInstance();
+		int output = calendar.get(Calendar.DAY_OF_WEEK) - 2;
+		
+		if(output < 0)
+			output += 7;
+			
+		return output;
+	}
+	
+	public static int getCurrentTimeAsTimeSlot() {
+		Calendar calendar = Calendar.getInstance();
+		
+		int hours = calendar.get(Calendar.HOUR_OF_DAY);
+		int minutes = calendar.get(Calendar.MINUTE);
+		
+		return (int) ((hours * 4) + (Math.ceil(minutes / 15.0) + 1));
+	} 
 	
 	/**
 	 * returnt true wenn es eine gültige Zeit für einen Termin ist
