@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +33,17 @@ public class Wochenplan {
 	 * Versucht einen @Termin hinzuzufügen Wenn an der Stelle schon ein Termin
 	 * existiert tritt eine @TerminAddException auf
 	 */
-	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException, InvalidTimeException {
+	public void addTermin(String name, int tag, int beginn, int ende, Class<? extends Termin> terminClass) throws TerminAddException, InvalidTimeException {
 		if (!TerminZeit.isValidTime(tag, beginn, ende))
 			throw new InvalidTimeException();
-
 		Termin[][] copy = termine.clone();
-		Termin termin = new Termin(name);
+		
+		Termin termin;
+		try {
+			termin = terminClass.getDeclaredConstructor(String.class).newInstance(name);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException| NoSuchMethodException | SecurityException e) {
+			termin = new Termin(name);
+		}
 		for (int i = beginn; i < ende; i++) {
 			if (existsTermin(tag, i))
 				throw new TerminAddException();
@@ -45,6 +51,10 @@ public class Wochenplan {
 		}
 
 		termine = copy;
+	}
+	
+	public void addTermin(String name, int tag, int beginn, int ende) throws TerminAddException, InvalidTimeException {
+		addTermin(name, tag, beginn, ende, Termin.class);
 	}
 
 	public void addHinweg(int tag, int beginn, int ende, int wegDauer) throws TerminAddException, InvalidTimeException {
@@ -392,13 +402,13 @@ public class Wochenplan {
 				if (existsTermin(i, j)) {
 					Termin termin = getTermin(i, j);
 					TerminZeit dauer = getTerminDuration(termin);
-					writer.write(dauer.getTag() + "/" + dauer.getStart() + "-" + dauer.getEnde() + ":"
+					
+					boolean isWeg = termin instanceof Weg;
+					
+					writer.write((isWeg ? "w_" : "") + dauer.getTag() + "/" + dauer.getStart() + "-" + dauer.getEnde() + ":"
 							+ termin.getName() + "\n");
 
 					j += dauer.getDauer();
-
-					System.out.println("START" + dauer.getStart());
-					System.out.println("ENDE" + dauer.getEnde());
 				}
 			}
 
@@ -406,7 +416,6 @@ public class Wochenplan {
 		return file;
 	}
 
-	// TODO
 	public static Wochenplan fromFile(File file) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 
@@ -419,14 +428,21 @@ public class Wochenplan {
 				String name = splittedLineAll[1];
 
 				String[] splittedLineValues = splittedLineAll[0].split("/");
+				
+				String before = splittedLineValues[0];
+				boolean isWeg = before.contains("w_");
+				
+				if(isWeg)
+					before = before.replaceAll("w_", "");
 
-				int tag = Integer.parseInt(splittedLineValues[0]);
+				int tag = Integer.parseInt(before);
 
 				int start = Integer.parseInt(splittedLineValues[1].split("-")[0]);
 				int ende = Integer.parseInt(splittedLineValues[1].split("-")[1]);
 
-				wochenplan.addTermin(name, tag, start, ende);
+				wochenplan.addTermin(name, tag, start, ende + 1, isWeg ? Weg.class : Termin.class);
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		reader.close();

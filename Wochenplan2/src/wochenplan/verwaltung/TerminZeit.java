@@ -1,8 +1,6 @@
 package wochenplan.verwaltung;
 
 import java.util.Calendar;
-import java.util.Date;
-
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 
 public class TerminZeit {

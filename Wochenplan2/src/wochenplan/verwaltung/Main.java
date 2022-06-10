@@ -109,7 +109,7 @@ public class Main {
 
 				break;
 			case "REMOVE":
-				editTermin(woche, "löschen");
+				editTermin(woche, TerminEditOptions.REMOVE);
 				break;
 			case "PRINT":
 				System.out.println("Geben Sie den gewünschten Wochentag ein");
@@ -121,7 +121,7 @@ public class Main {
 				System.out.println(woche.printTermine());
 				break;
 			case "RENAME":
-				editTermin(woche, "umbenennen");
+				editTermin(woche, TerminEditOptions.RENAME);
 				break;
 			case "END":
 				System.out.println("Programm erfolgreich beendet");
@@ -258,7 +258,7 @@ public class Main {
 		}
 	}
 
-	public static void editTermin(Wochenplan woche, String option) {
+	public static void editTermin(Wochenplan woche, TerminEditOptions option) {
 		System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
 		System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
 		System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
@@ -304,7 +304,7 @@ public class Main {
 			System.out.println("y für yes oder n für no");
 			String input2 = getStringValue("y", "n");
 			if (input2.equals("y")) {
-				if (option.equals("umbenennen")) {
+				if (option == TerminEditOptions.RENAME) {
 					System.out.println("Geben Sie den neuen Namen des Termins ein");
 					String newName = sc.next();
 					woche.renameTermin(tag2, beginn2, newName);
