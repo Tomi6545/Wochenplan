@@ -7,8 +7,7 @@ import java.util.Scanner;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
-import wochenplan.verwaltung.exceptions.TerminDoesNotExistException;
-import wochenplan.verwaltung.exceptions.TerminRemoveException;
+import wochenplan.verwaltung.exceptions.TerminExistenceException;
 
 public class Main {
 
@@ -257,13 +256,28 @@ public class Main {
 		System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
 		System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
 		String s2 = getStringValue("name", "time");
-		int tag2;
-		int beginn2;
+		int tag2 = 0;
+		int beginn2 = 0;
 		if (s2.equals("name")) {
 			System.out.println("Geben Sie den Namen des Termins ein, welches Sie " + option + " möchten");
 			String oldName = sc.next();
-			beginn2 = woche.getTerminTime(oldName);
-			tag2 = woche.getTerminDay(oldName);
+			try {
+				if (woche.getTermine(oldName).size() == 1) {
+					beginn2 = woche.getTerminTime(oldName);
+					tag2 = woche.getTerminDay(oldName);
+				} else {
+					System.out.println("Welches der folgenden Termine möchten Sie " + option + "?");
+					for (Termin s : woche.getTermine(oldName)) {
+						System.out.println(woche.printTerminWithDay(s));
+					}
+					System.out.println(
+							"Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie " + option + " möchten.");
+					tag2 = getIntegerValue() - 1;
+					beginn2 = (int) (getDoubleValue() * 4);
+				}
+			} catch (InvalidTimeException e) {
+				System.out.println("Problem mit der Liste");
+			}
 		} else {
 			System.out
 					.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie " + option + " möchten.");
@@ -273,12 +287,12 @@ public class Main {
 
 		try {
 			if (!woche.existsTermin(tag2, beginn2)) {
-				throw new TerminRemoveException();
+				throw new TerminExistenceException();
 
 			}
 			if (woche.existsTermin(tag2, beginn2)) {
 				System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
-				System.out.println(woche.printTermin(tag2, beginn2));
+				System.out.println(woche.printTerminWithDay(woche.getTermin(tag2, beginn2)));
 				System.out.println("y für yes oder n für no");
 				String input2 = getStringValue("y", "n");
 				if (input2.equals("y")) {
@@ -300,7 +314,7 @@ public class Main {
 			} else {
 				System.out.println("Termin exisitert nicht");
 			}
-		} catch (TerminRemoveException e) {
+		} catch (TerminExistenceException e) {
 			System.out.println("Termin existiert nicht");
 		} catch (InvalidTimeException | IndexOutOfBoundsException e) {
 			System.out.println("Ungültige Zeit");

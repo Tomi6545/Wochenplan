@@ -123,7 +123,11 @@ public class TerminZeit {
 	 * returnt true wenn es eine gültige Zeit für einen Termin ist
 	 */
 	public static boolean isValidTime(int tag, int zeitslot) {
-		return 0 <= tag && tag <= 6 && 0 <= zeitslot && zeitslot <= 95;
+		return isValidTime(tag) && 0 <= zeitslot && zeitslot <= 95;
+	}
+	
+	public static boolean isValidTime(int tag) {
+		return 0 <= tag && tag <= 6;
 	}
 	
 	public static boolean isValidTime(int tag, int start, int ende) {
