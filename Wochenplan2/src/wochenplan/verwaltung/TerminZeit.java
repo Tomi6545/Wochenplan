@@ -137,5 +137,4 @@ public class TerminZeit {
 		return new TerminZeit(tag, start, ende);
 	}
 
-
 }
