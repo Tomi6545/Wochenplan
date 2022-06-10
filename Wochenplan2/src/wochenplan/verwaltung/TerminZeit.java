@@ -82,6 +82,7 @@ public class TerminZeit {
 	}
 	
 	public static String formatTime(int time) {
+		System.out.println(time);
 		int stunden = (int) (time / 4);
 		int minuten = (int) (((double) (time) / 4 % 1) * 60);
 		String bMinuten = String.valueOf(minuten);

@@ -265,6 +265,34 @@ public class Wochenplan {
 
 		return builder.toString();
 	}
+	
+	public String printArray() {
+		String output = "";
+		
+		for (int tag = 0; tag < 7; tag++) {
+			try  {
+				output += TerminZeit.convertIntToTag(tag)+"\n";
+			} catch(InvalidTimeException e) {
+				return "???\n";
+			}
+			
+			boolean anyTermin = false;
+			for (int i = 0; i < 96; i++) {
+				if(existsTermin(tag, i)) {
+					output += i + ":" + getTermin(tag, i).getName() + " ";
+					anyTermin = true;
+				}
+			}
+			
+			if(!anyTermin)
+				output += "/";
+			
+			output += "\n";
+		}
+
+		
+		return output;
+	}
 
 	// TODO
 	public File saveAsFile(String filename) throws IOException {

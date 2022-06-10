@@ -43,9 +43,12 @@ public class Main {
 		System.out.printf("%-8s  %s%n", "rename", "einen Termin umbenennen");
 		System.out.printf("%-8s  %s%n", "print", "den Tagesplan ausgeben");
 		System.out.printf("%-8s  %s%n", "printall", "den Wochenplan ausgeben");
+		System.out.printf("%-8s  %s%n", "search", "den nächsten Termin suchen");
+		System.out.printf("%-8s  %s%n", "find", "mögliche Zeitpunkte für Termin finden");
 		System.out.printf("%-8s  %s%n", "save", "den Wochenplan als Datei speichern");
 		System.out.printf("%-8s  %s%n", "load", "einen Wochenplan aus einer Datei laden");
 		System.out.printf("%-8s  %s%n", "help", "die Optionen erneut anzuzeigen");
+		System.out.printf("%-8s  %s%n", "debug", "Option zum Testen");
 		System.out.printf("%-8s  %s%n", "end", "das Programm beenden");
 
 	}
@@ -216,6 +219,13 @@ public class Main {
 				} catch (IOException e) {
 					System.out.println("Ein Fehler beim Laden der Datei " + filename2 + " ist aufgetreten!");
 				}
+				break;
+			case "SEARCH":
+				break;	
+			case "FIND":
+				break;
+			case "DEBUG":
+				System.out.println(woche.printArray());
 				break;
 			default:
 				System.out.println("Keine gültige Eingabe!");
