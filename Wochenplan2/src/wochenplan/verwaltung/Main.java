@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
+import wochenplan.verwaltung.exceptions.TerminDoesNotExistException;
 import wochenplan.verwaltung.exceptions.TerminRemoveException;
 
 public class Main {
@@ -76,7 +77,7 @@ public class Main {
 
 					System.out.println("Geben Sie den Namen des Termins ein");
 					String TerminBezeichner = sc.next();
-					
+
 					woche.addTermin(TerminBezeichner, tag, beginn, ende);
 					System.out.println("Termin wurde erfolgreich hinzugefügt");
 					System.out.println("Möchten Sie noch den Hin- oder Rückweg eintragen?");
@@ -102,43 +103,7 @@ public class Main {
 
 				break;
 			case "REMOVE":
-				System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
-				System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
-				System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
-				String s = getStringValue("name", "time");
-				int tag1;
-				int beginn1;
-				if (s.equals("name")) {
-					System.out.println("Geben Sie den Namen des Termins ein, welches Sie löschen möchten");
-					String oldName = sc.next();
-					beginn1 = woche.getTerminTime(oldName);
-					tag1 = woche.getTerminDay(oldName);
-				} else {
-					System.out.println(
-							"Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie löschen möchten.");
-					tag1 = getIntegerValue() - 1;
-					beginn1 = (int) (getDoubleValue() * 4);
-				}
-
-				try {
-					if (!woche.existsTermin(tag1, beginn1)) {
-						throw new TerminRemoveException();
-					}
-					System.out.println("Möchten Sie wirklich den folgenden Termin löschen?");
-					System.out.println(woche.printTermin(tag1, beginn1));
-					System.out.println("y für yes oder n für no");
-					String input1 = getStringValue("y", "n");
-					if (input1.equals("y")) {
-						woche.removeTermin(tag1, beginn1);
-						System.out.println("Termin erfolgreich gelöscht");
-					} else {
-						System.out.println("Vorgang abgrebrochen");
-					}
-				} catch (TerminRemoveException e) {
-					System.out.println("Termin existiert nicht");
-				} catch (InvalidTimeException | IndexOutOfBoundsException e) {
-					System.out.println("Ungültige Zeit!");
-				}
+				editTermin(woche, "löschen");
 				break;
 			case "PRINT":
 				System.out.println("Geben Sie den gewünschten Wochentag ein");
@@ -150,50 +115,7 @@ public class Main {
 				System.out.println(woche.printTermine());
 				break;
 			case "RENAME":
-				System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
-				System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
-				System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
-				String s2 = getStringValue("name", "time");
-				int tag2;
-				int beginn2;
-				if (s2.toUpperCase().equals("NAME")) {
-					System.out.println("Geben Sie den Namen des Termins ein, welches Sie umbenennen möchten");
-					String oldName = sc.next();
-					beginn2 = woche.getTerminTime(oldName);
-					tag2 = woche.getTerminDay(oldName);
-				} else {
-					System.out.println(
-							"Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie umbennen möchten.");
-					tag2 = getIntegerValue() - 1;
-					beginn2 = (int) (getDoubleValue() * 4);
-				}
-
-				try {
-					if (!woche.existsTermin(tag2, beginn2)) {
-						throw new TerminRemoveException();
-					}
-					if (woche.existsTermin(tag2, beginn2)) {
-						System.out.println("Möchten Sie wirklich den folgenden Termin umbenennen?");
-						System.out.println(woche.printTermin(tag2, beginn2));
-						System.out.println("y für yes oder n für no");
-						String input2 = getStringValue("y", "n");
-						if (input2.equals("y")) {
-							System.out.println("Geben Sie den neuen Namen des Termins ein");
-							String newName = sc.next();
-							woche.renameTermin(tag2, beginn2, newName);
-							System.out.println("Termin erfolgreich umbenannt");
-						} else {
-							System.out.println("Vorgang abgrebrochen");
-						}
-					} else {
-						System.out.println("Termin exisitert nicht");
-					}
-				} catch (TerminRemoveException e) {
-					System.out.println("Termin existiert nicht");
-				} catch (InvalidTimeException | IndexOutOfBoundsException e) {
-					System.out.println("Ungültige Zeit");
-				}
-
+				editTermin(woche, "umbenennen");
 				break;
 			case "END":
 				System.out.println("Programm erfolgreich beendet");
@@ -222,51 +144,52 @@ public class Main {
 			case "SEARCH":
 				System.out.println("Möchten Sie einen bestimmten Termin mit Namen suchen?");
 				System.out.println("y für yes oder n für no");
-				String searchName = null; 
-				if(getStringValue("y", "n").equals("y")) {
+				String searchName = null;
+				if (getStringValue("y", "n").equals("y")) {
 					System.out.println("Geben Sie den Namen ein");
 					searchName = sc.next();
 				}
-				
+
 				System.out.println("Wählen Sie eine Option aus");
 				System.out.printf("%-7s  %s%n", "now", "ab der aktuellen Systemzeit suchen");
 				System.out.printf("%-7s  %s%n", "time", "ab einer bestimmten Zeit suchen");
 				System.out.printf("%-7s  %s%n", "all", "im ganzen Wochenplan suchen");
-				String searchOption = getStringValue("now", "time","all");
-				
+				String searchOption = getStringValue("now", "time", "all");
+
 				int searchTag;
 				int searchZeitSlot;
-				
-				switch(searchOption.toLowerCase()) {
-					case "now":
-						searchTag = TerminZeit.getTodayAsInt();
-						searchZeitSlot = TerminZeit.getCurrentTimeAsTimeSlot();
-						break;
-					case "time":
-						System.out.println("Geben Sie einen Tag ein");
-						showTagOptions();
-						try {
-							searchTag =  TerminZeit.convertTagToInt(getStringValue("Montag","Dienstag","Mitwoch","Donnerstag","Freitag","Samstag","Sonntag"));
-						} catch (InvalidTimeException e) {
-							searchTag = -1;
-						}
-						System.out.println("Geben Sie eine Uhrzeit ein");
-						showZeitOptions();
-						searchZeitSlot = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
-						break;
-					default:
-						searchTag = 0;
-						searchZeitSlot = 0;
-						break;
+
+				switch (searchOption.toLowerCase()) {
+				case "now":
+					searchTag = TerminZeit.getTodayAsInt();
+					searchZeitSlot = TerminZeit.getCurrentTimeAsTimeSlot();
+					break;
+				case "time":
+					System.out.println("Geben Sie einen Tag ein");
+					showTagOptions();
+					try {
+						searchTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mitwoch",
+								"Donnerstag", "Freitag", "Samstag", "Sonntag"));
+					} catch (InvalidTimeException e) {
+						searchTag = -1;
+					}
+					System.out.println("Geben Sie eine Uhrzeit ein");
+					showZeitOptions();
+					searchZeitSlot = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
+					break;
+				default:
+					searchTag = 0;
+					searchZeitSlot = 0;
+					break;
 				}
-				
+
 				try {
 					Termin termin = woche.getNextTermin(searchTag, searchZeitSlot, searchName);
 					System.out.println(woche.printTermin(termin));
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit");
 				}
-				break;	
+				break;
 			case "FIND":
 				break;
 			case "DEBUG":
@@ -280,11 +203,11 @@ public class Main {
 		}
 
 	}
-	
+
 	public static void showTagOptions() {
 		System.out.println("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag");
 	}
-	
+
 	public static void showZeitOptions() {
 		System.out.println("z.B. 13:30 Uhr als 13,5");
 	}
@@ -317,14 +240,67 @@ public class Main {
 		String value;
 		while (true) {
 			value = sc.next();
-			
-			for(String v : values)
-				if(value.equals(v))
+
+			for (String v : values)
+				if (value.equals(v))
 					return value;
-			
+
 			System.out.println("Ungültige Eingabe");
 			System.out.println("Sie haben folgende Optionen:");
 			System.out.println(String.join(", ", values));
 		}
+	}
+
+	public static void editTermin(Wochenplan woche, String option) {
+		System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
+		System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
+		System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");
+		String s2 = getStringValue("name", "time");
+		int tag2;
+		int beginn2;
+		if (s2.equals("name")) {
+			System.out.println("Geben Sie den Namen des Termins ein, welches Sie " + option + " möchten");
+			String oldName = sc.next();
+			beginn2 = woche.getTerminTime(oldName);
+			tag2 = woche.getTerminDay(oldName);
+		} else {
+			System.out
+					.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie " + option + " möchten.");
+			tag2 = getIntegerValue() - 1;
+			beginn2 = (int) (getDoubleValue() * 4);
+		}
+
+		try {
+			if (!woche.existsTermin(tag2, beginn2)) {
+				throw new TerminRemoveException();
+				
+			}
+			if (woche.existsTermin(tag2, beginn2)) {
+				System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
+				System.out.println(woche.printTermin(tag2, beginn2));
+				System.out.println("y für yes oder n für no");
+				String input2 = getStringValue("y", "n");
+				if (input2.equals("y")) {
+					if (option.equals("umbenennen")) {
+						System.out.println("Geben Sie den neuen Namen des Termins ein");
+						String newName = sc.next();
+						woche.renameTermin(tag2, beginn2, newName);
+						System.out.println("Termin erfolgreich umbenannt");
+					} else {
+						woche.removeTermin(tag2, beginn2);
+						System.out.println("Termin erfolgreich gelöscht");
+					}
+				} else {
+					System.out.println("Vorgang abgrebrochen");
+				}
+			} else {
+				System.out.println("Termin exisitert nicht");
+			}
+		} catch (TerminRemoveException e) {
+			System.out.println("Termin existiert nicht");
+		} catch (InvalidTimeException | IndexOutOfBoundsException e) {
+			System.out.println("Ungültige Zeit");
+		}
+
 	}
 }

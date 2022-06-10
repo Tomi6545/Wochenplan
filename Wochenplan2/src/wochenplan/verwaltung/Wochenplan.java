@@ -36,7 +36,7 @@ public class Wochenplan {
 
 		Termin[][] copy = termine.clone();
 		Termin termin = new Termin(name);
-		for (int i = beginn; i <= ende; i++) {
+		for (int i = beginn; i < ende; i++) {
 			if (existsTermin(tag, i))
 				throw new TerminAddException();
 			copy[tag][i] = termin;
@@ -47,7 +47,7 @@ public class Wochenplan {
 
 	public void addHinweg(int tag, int beginn, int ende, int wegDauer) throws TerminAddException, InvalidTimeException {
 		
-			addTermin("Weg", tag, beginn - wegDauer, beginn-1);
+			addTermin("Weg", tag, beginn - wegDauer, beginn);
 		}
 
 	/**
@@ -221,7 +221,7 @@ public class Wochenplan {
 			Termin termin = getTermin(tag, zeitslot);
 			TerminZeit dauer = getTerminDuration(termin);
 			output = output += "\n" + TerminZeit.formatTime(dauer.getStart()) + " - "
-					+ TerminZeit.formatTime(dauer.getEnde()) + ": " + termin.toString();
+					+ TerminZeit.formatTime(dauer.getEnde()+1) + ": " + termin.toString();
 
 		}
 		return !output.isEmpty() ? output : "Es wurde kein Termin eingetragen";
