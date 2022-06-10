@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
-import wochenplan.verwaltung.exceptions.TerminRemoveException;
+import wochenplan.verwaltung.exceptions.TerminExistenceException;
 
 public class Wochenplan {
 
@@ -54,11 +56,11 @@ public class Wochenplan {
 	 * Versucht einen @Termin zu entfernen Wenn dieser nicht existiert tritt
 	 * eine @TerminRemoveException auf
 	 */
-	public void removeTermin(int tag, int zeitslot) throws TerminRemoveException, InvalidTimeException {
+	public void removeTermin(int tag, int zeitslot) throws TerminExistenceException, InvalidTimeException {
 		if (!TerminZeit.isValidTime(tag, zeitslot))
 			throw new InvalidTimeException();
 		if (!existsTermin(tag, zeitslot))
-			throw new TerminRemoveException();
+			throw new TerminExistenceException();
 
 		Termin termin = termine[tag][zeitslot];
 
@@ -83,11 +85,11 @@ public class Wochenplan {
 		}
 	}
 
-	public void renameTermin(int tag, int zeitslot, String newName) throws TerminRemoveException, InvalidTimeException {
+	public void renameTermin(int tag, int zeitslot, String newName) throws TerminExistenceException, InvalidTimeException {
 		if (!TerminZeit.isValidTime(tag, zeitslot))
 			throw new InvalidTimeException();
 		if (!existsTermin(tag, zeitslot))
-			throw new TerminRemoveException();
+			throw new TerminExistenceException();
 
 		Termin termin = termine[tag][zeitslot];
 
@@ -119,6 +121,44 @@ public class Wochenplan {
 	 */
 	public Termin getTermin(int tag, int zeitslot) {
 		return existsTermin(tag, zeitslot) ? termine[tag][zeitslot] : null;
+	}
+	
+	public List<Termin> getTermine(int tag, String name) throws InvalidTimeException {
+		List<Termin> termine = new ArrayList<>();
+		
+		if(!TerminZeit.isValidTime(tag))
+			throw new InvalidTimeException();
+		
+		for(int i = 0; i < this.termine[tag].length; i++) {
+			if(existsTermin(tag, i) && (name == null || getTermin(tag, i).getName().equals(name))) {
+				Termin termin = getTermin(tag, i);
+				TerminZeit dauer = getTerminDuration(termin);
+				termine.add(termin);
+				
+				i += dauer.getDauer();
+			}
+				
+		}
+		
+		return termine;
+	}
+	
+	public List<Termin> getTermine(int tag) throws InvalidTimeException {
+		return getTermine(tag, null);
+	}
+	
+	public List<Termin> getTermine(String name) throws InvalidTimeException {
+		List<Termin> termine = new ArrayList<>();
+		
+		for(int day = 0; day < this.termine.length; day++) {
+			termine.addAll(getTermine(day, name));
+		}
+		
+		return termine;
+	}
+	
+	public List<Termin> getTermine() throws InvalidTimeException {
+		return getTermine(null);
 	}
 	
 	public Termin getNextTermin(int tag, int zeitslot, String name) throws InvalidTimeException {
@@ -188,7 +228,7 @@ public class Wochenplan {
 	 * Returnt true, wenn ein @Termin an dieser Stelle eingetragen ist
 	 */
 	public boolean existsTermin(int tag, int zeitslot) {
-		return termine[tag][zeitslot] != null;
+		return TerminZeit.isValidTime(tag, zeitslot) && termine[tag][zeitslot] != null;
 	}
 
 	/**

@@ -7,8 +7,7 @@ import java.util.Scanner;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
-import wochenplan.verwaltung.exceptions.TerminDoesNotExistException;
-import wochenplan.verwaltung.exceptions.TerminRemoveException;
+import wochenplan.verwaltung.exceptions.TerminExistenceException;
 
 public class Main {
 
@@ -272,7 +271,7 @@ public class Main {
 
 		try {
 			if (!woche.existsTermin(tag2, beginn2)) {
-				throw new TerminRemoveException();
+				throw new TerminExistenceException();
 				
 			}
 			if (woche.existsTermin(tag2, beginn2)) {
@@ -296,7 +295,7 @@ public class Main {
 			} else {
 				System.out.println("Termin exisitert nicht");
 			}
-		} catch (TerminRemoveException e) {
+		} catch (TerminExistenceException e) {
 			System.out.println("Termin existiert nicht");
 		} catch (InvalidTimeException | IndexOutOfBoundsException e) {
 			System.out.println("Ungültige Zeit");
