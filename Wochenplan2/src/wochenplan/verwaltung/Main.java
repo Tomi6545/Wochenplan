@@ -3,6 +3,7 @@ package wochenplan.verwaltung;
 import java.io.File;
 import java.io.IOException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
@@ -83,7 +84,7 @@ public class Main {
 					woche.addTermin(terminBezeichner, tag, beginn, ende);
 					System.out.println("Termin wurde erfolgreich hinzugefügt");
 					System.out.println("Möchten Sie noch den Hin- oder Rückweg eintragen?");
-					System.out.println("y für yes oder n für no");
+					showConfirmOptions();
 					if (getStringValue("y", "n").equals("y")) {
 						System.out.printf("%-4s  %s%n", "h", "für den Hinweg");
 						System.out.printf("%-4s  %s%n", "r", "für den Rückweg");
@@ -154,7 +155,7 @@ public class Main {
 				break;
 			case "SEARCH":
 				System.out.println("Möchten Sie einen bestimmten Termin mit Namen suchen?");
-				System.out.println("y für yes oder n für no");
+				showConfirmOptions();
 				String searchName = null;
 				if (getStringValue("y", "n").equals("y")) {
 					System.out.println("Geben Sie den Namen ein");
@@ -171,26 +172,26 @@ public class Main {
 				int searchZeitSlot;
 
 				switch (searchOption.toLowerCase()) {
-				case "now":
-					searchTag = TerminZeit.getTodayAsInt();
-					searchZeitSlot = TerminZeit.getCurrentTimeAsTimeSlot();
-					break;
-				case "time":
-					System.out.println("Geben Sie einen Tag ein");
-					showTagOptions();
-					try {
-						searchTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mitwoch","Donnerstag", "Freitag", "Samstag", "Sonntag"));
-					} catch (InvalidTimeException e) {
-						searchTag = -1;
-					}
-					System.out.println("Geben Sie eine Uhrzeit ein");
-					showZeitOptions();
-					searchZeitSlot = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
-					break;
-				default:
-					searchTag = 0;
-					searchZeitSlot = 0;
-					break;
+					case "now":
+						searchTag = TerminZeit.getTodayAsInt();
+						searchZeitSlot = TerminZeit.getCurrentTimeAsTimeSlot();
+						break;
+					case "time":
+						System.out.println("Geben Sie einen Tag ein");
+						showTagOptions();
+						try {
+							searchTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mittwoch","Donnerstag", "Freitag", "Samstag", "Sonntag"));
+						} catch (InvalidTimeException e) {
+							searchTag = -1;
+						}
+						System.out.println("Geben Sie eine Uhrzeit ein");
+						showZeitOptions();
+						searchZeitSlot = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
+						break;
+					default:
+						searchTag = 0;
+						searchZeitSlot = 0;
+						break;
 				}
 
 				try {
@@ -201,7 +202,44 @@ public class Main {
 				}
 				break;
 			case "FIND":
-
+				System.out.println("Geben Sie einen Tag ein");
+				showTagOptions();
+				try {
+					int findTag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mittwoch","Donnerstag", "Freitag", "Samstag", "Sonntag"));
+					System.out.println("Geben Sie eine Termindauer in Minuten ein");
+					int findDauer = (int) Math.ceil(getIntegerValue() / 15.0);
+					
+					List<Integer> findResult = woche.findEmptyZeitSlots(findTag, findDauer);
+					
+					while(true) {	
+						if(findResult.isEmpty()) {
+							System.out.println("Es wurden keine möglichen Zeitpunkte gefunden");
+							break;
+						}
+						
+						System.out.println("Mögliche Zeitpunkte am " + TerminZeit.convertIntToTag(findTag) + ":");
+						for(int findSlots : findResult)
+							System.out.println(TerminZeit.formatTime(findSlots) + " - " + TerminZeit.formatTime(findSlots + findDauer));
+						System.out.println("Möchten Sie schauen welche Zeitpunkte in einem anderen Wochenplan auch frei sind?");
+						showConfirmOptions();
+						if(getStringValue("y","n").equals("y")) {
+							System.out.println("Geben Sie einen Dateinamen ein");
+							String findOtherFile = sc.next();
+							try {
+								Wochenplan other = Wochenplan.fromFile(new File(findOtherFile));
+								findResult.retainAll(other.findEmptyZeitSlots(findTag, findDauer));
+							} catch (IOException e) {
+								System.out.println("Die Datei konnte nicht geladen werden");
+								break;
+							}
+						} else break;
+							
+					}
+					
+				} catch (InvalidTimeException e) {
+					System.out.println("Ungültige Zeit");
+				}
+				
 				break;
 			case "DEBUG":
 				System.out.println(woche.printArray());
@@ -222,7 +260,11 @@ public class Main {
 	public static void showZeitOptions() {
 		System.out.println("z.B. 13:30 Uhr als 13,5");
 	}
-
+	
+	public static void showConfirmOptions() {
+		System.out.println("y für yes oder n für no");
+	}
+	
 	public static int getIntegerValue() {
 		while (true) {
 			try {
@@ -262,7 +304,7 @@ public class Main {
 		}
 	}
 
-	public static void editTermin(Wochenplan woche, TerminEditOptions option) {
+	private static void editTermin(Wochenplan woche, TerminEditOptions option) {
 		System.out.println("Möchten Sie den Namen oder den Zeitpunkt des Termins angeben?");
 		System.out.printf("%-7s  %s%n", "name", "mit dem Namen");
 		System.out.printf("%-7s  %s%n", "time", "mit dem Zeitpunkt");

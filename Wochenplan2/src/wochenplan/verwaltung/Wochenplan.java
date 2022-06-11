@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
@@ -139,7 +140,6 @@ public class Wochenplan {
 				break;
 
 			termine[tag][slot].setName(newName);
-			;
 			slot++;
 		}
 
@@ -220,6 +220,27 @@ public class Wochenplan {
 
 	public Termin gextNextTermin(int tag, int zeitslot) throws InvalidTimeException {
 		return getNextTermin(tag, zeitslot, null);
+	}
+	
+	public List<Integer> findEmptyZeitSlots(int tag, int dauer) throws InvalidTimeException {
+		if(!TerminZeit.isValidTime(tag))
+			throw new InvalidTimeException();
+		
+		List<Integer> zeitslots = new ArrayList<>();
+		
+TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
+			int end = slot + dauer;
+			if(!TerminZeit.isValidTime(tag, end))
+				continue;
+
+			for(int check = slot; check < end; check++)
+				if(existsTermin(tag, check))
+					continue TERMINSLOTS;
+			
+			zeitslots.add(slot);
+		}
+		
+		return zeitslots;
 	}
 
 	/**
@@ -393,7 +414,6 @@ public class Wochenplan {
 		return output;
 	}
 
-	// TODO
 	public File saveAsFile(String filename) throws IOException {
 		File file = new File(filename);
 
@@ -447,7 +467,6 @@ public class Wochenplan {
 
 				wochenplan.addTermin(name, tag, start, ende + 1, isWeg ? Weg.class : Termin.class);
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 		reader.close();
