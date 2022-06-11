@@ -16,22 +16,23 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		Wochenplan woche1 = new Wochenplan(new Termin[7][96]);
+		Wochenplan woche = new Wochenplan(new Termin[7][96]);
 		sc = new Scanner(System.in);
 		try {
-			woche1.addTermin("Mathe", 2, 36, 42);
+			woche.addTermin("Mathe", 2, 36, 42);
+			woche.addTermin("Mathe", 6, 36, 42);
 		} catch (TerminAddException | InvalidTimeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		menu();
-		programm(woche1);
+		programm(woche);
 
 		for (int tag = 0; tag < 7; tag++) {
 			for (int i = 0; i < 96; i++) {
-				if (woche1.getTermin(tag, i) != null)
-					System.out.println("Index: " + tag + ", " + i + woche1.printTermin(tag, i));
+				if (woche.getTermin(tag, i) != null)
+					System.out.println("Index: " + tag + ", " + i + woche.printTermin(tag, i));
 			}
 		}
 	}
@@ -70,8 +71,8 @@ public class Main {
 				try {
 					System.out.println("Geben Sie den Wochentag ein, an dem sie einen Termin hinzufügen wollen");
 					showTagOptions();
-					int tag = TerminZeit.convertTagToInt(
-							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
+					int tag = TerminZeit.convertTagToInt(getStringValue("Montag", "Dienstag", "Mittwoch", "Donnerstag",
+							"Freitag", "Samstag", "Sonntag"));
 
 					System.out.println("Geben Sie die Start- und Enduhrzeit an (z.B. 13:30 Uhr als 13,5)");
 
@@ -79,7 +80,7 @@ public class Main {
 					int ende = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
 
 					System.out.println("Geben Sie den Namen des Termins ein");
-					String terminBezeichner = sc.nextLine();
+					String terminBezeichner = sc.next();
 
 					woche.addTermin(terminBezeichner, tag, beginn, ende);
 					System.out.println("Termin wurde erfolgreich hinzugefügt");
@@ -118,7 +119,8 @@ public class Main {
 				System.out.println("Geben Sie den gewünschten Wochentag ein");
 				showTagOptions();
 				try {
-					System.out.println(woche.printTermine(TerminZeit.convertTagToInt(getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"))));
+					System.out.println(woche.printTermine(TerminZeit.convertTagToInt(
+							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"))));
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit");
 				}
@@ -135,7 +137,7 @@ public class Main {
 				break;
 			case "SAVE":
 				System.out.println("Geben Sie einen Namen für die Datei an");
-				String filename = sc.nextLine();
+				String filename = sc.next();
 				try {
 					woche.saveAsFile(filename);
 					System.out.println("Wochenplan wurde erfolgreich als Datei abgespeichert!");
@@ -145,7 +147,7 @@ public class Main {
 				break;
 			case "LOAD":
 				System.out.println("Geben Sie den Namen der Datei an");
-				String filename2 = sc.nextLine();
+				String filename2 = sc.next();
 				try {
 					woche = Wochenplan.fromFile(new File(filename2));
 					System.out.println("Wochenplan wurde erfolgreich aus der Datei geladen!");
@@ -159,7 +161,7 @@ public class Main {
 				String searchName = null;
 				if (getStringValue("y", "n").equals("y")) {
 					System.out.println("Geben Sie den Namen ein");
-					searchName = sc.nextLine();
+					searchName = sc.next();
 				}
 
 				System.out.println("Wählen Sie eine Option aus");
@@ -277,6 +279,21 @@ public class Main {
 		}
 	}
 
+	public static int getIntegerValue(int min, int max) {
+		while (true) {
+			try {
+				int value = sc.nextInt();
+				if (min <= value && value <= max) {
+					return value;
+				} else {
+					System.out.println("Die Zahl muss zwischen " + min + " und " + max + " liegen");
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("Geben Sie eine gültige Zahl ein");
+			}
+		}
+	}
+
 	public static double getDoubleValue() {
 		while (true) {
 			try {
@@ -311,27 +328,36 @@ public class Main {
 		String select = getStringValue("name", "time");
 		int tag = 0;
 		int beginn = 0;
+		Termin termin;
+		TerminZeit zeit;
 
 		try {
 			if (select.equals("name")) {
 				System.out
 						.println("Geben Sie den Namen des Termins ein, welchen Sie " + option.getAction() + " möchten");
-				String oldName = sc.nextLine();
-				if (woche.getTermine(oldName).size() == 1) {
-					beginn = woche.getTerminTime(oldName);
-					tag = woche.getTerminDay(oldName);
-				} else {
-					System.out.println("Welchen der folgenden Termine möchten Sie " + option.getAction() + "?");
-					for (Termin s : woche.getTermine(oldName)) {
-						System.out.println(woche.printTerminWithDay(s));
+				String oldName = sc.next();
+				if (woche.existsTermin(oldName)) {
+					if (woche.getTermine(oldName).size() == 1) {
+						termin = woche.getTermine(oldName).get(0);
+						zeit = woche.getTerminDuration(termin);
+						beginn = zeit.getStart();
+						tag = zeit.getTag();
+					} else {
+						System.out.println("Welchen der folgenden Termine möchten Sie " + option.getAction() + "?");
+						int index = 0;
+						for (Termin s : woche.getTermine(oldName)) {
+							System.out.println("(" + index + ") " + woche.printTerminWithDay(s));
+							index++;
+						}
+						System.out
+								.println("Geben Sie die in der Klammer stehende Zahl ein, um den Termin auszuwählen ");
+						int choice = getIntegerValue(0, woche.getTermine(oldName).size() - 1);
+						termin = woche.getTermine(oldName).get(choice);
+						zeit = woche.getTerminDuration(termin);
+						beginn = zeit.getStart();
+						tag = zeit.getTag();
 					}
-					System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welchen Sie "
-							+ option.getAction() + " möchten.");
-					showTagOptions();
-					tag = TerminZeit.convertTagToInt(
-							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
-					beginn = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
-				}
+				} 
 			} else {
 				System.out.println("Gebe Sie den Tag und den Zeitpunkt des Termins ein, welches Sie "
 						+ option.getAction() + " möchten.");
@@ -345,15 +371,15 @@ public class Main {
 				throw new TerminExistenceException();
 			}
 
-			Termin termin = woche.getTermin(tag, beginn);
-			TerminZeit zeit = woche.getTerminDuration(termin);
-			System.out.println("Möchten Sie wirklich den folgenden Termin " + option + "?");
+			termin = woche.getTermin(tag, beginn);
+			zeit = woche.getTerminDuration(termin);
+			System.out.println("Möchten Sie wirklich den folgenden Termin " + option.getAction() + "?");
 			System.out.println(woche.printTerminWithDay(termin));
 			System.out.println("y für yes oder n für no");
 			if (getStringValue("y", "n").equals("y")) {
 				if (option == TerminEditOptions.RENAME) {
 					System.out.println("Geben Sie den neuen Namen des Termins ein");
-					String newName = sc.nextLine();
+					String newName = sc.next();
 					woche.renameTermin(tag, beginn, newName);
 					System.out.println("Termin erfolgreich umbenannt");
 				} else {
