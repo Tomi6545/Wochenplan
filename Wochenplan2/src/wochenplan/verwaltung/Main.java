@@ -352,7 +352,7 @@ public class Main {
 						+ option.getAction() + " möchten.");
 				showTagOptions();
 				tag = TerminZeit.convertTagToInt(
-						getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"));
+						getStringValue("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"));
 				beginn = TerminZeit.convertTimeToTimeSlot(getDoubleValue());
 			}
 

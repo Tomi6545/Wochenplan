@@ -157,7 +157,7 @@ public class TerminZeit {
 	 * returnt true wenn es eine gültige Zeit für einen Termin ist
 	 */
 	public static boolean isValidTime(int tag, int start, int ende) {
-		return isValidTime(tag, start) && isValidTime(tag, ende) && start < ende;
+		return isValidTime(tag, start) && isValidTime(tag, ende) && start <= ende;
 	}
 	
 	/**
