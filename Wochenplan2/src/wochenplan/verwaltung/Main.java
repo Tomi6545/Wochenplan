@@ -287,7 +287,7 @@ public class Main {
 		String select = getStringValue("name", "time");
 		int tag = 0;
 		int beginn = 0;
-		Termin termin = null;
+		Termin termin;
 		TerminZeit zeit;
 
 		try {
