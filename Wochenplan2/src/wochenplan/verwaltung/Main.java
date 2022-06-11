@@ -15,26 +15,11 @@ public class Main {
 	private static Scanner sc;
 
 	public static void main(String[] args) {
-
 		Wochenplan woche = new Wochenplan(new Termin[7][96]);
 		sc = new Scanner(System.in);
-		try {
-			woche.addTermin("Mathe", 2, 36, 42);
-			woche.addTermin("Mathe", 6, 36, 42);
-		} catch (TerminAddException | InvalidTimeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		
 		menu();
 		programm(woche);
-
-		for (int tag = 0; tag < 7; tag++) {
-			for (int i = 0; i < 96; i++) {
-				if (woche.getTermin(tag, i) != null)
-					System.out.println("Index: " + tag + ", " + i + woche.printTermin(tag, i));
-			}
-		}
 	}
 
 	public static void menu() {
