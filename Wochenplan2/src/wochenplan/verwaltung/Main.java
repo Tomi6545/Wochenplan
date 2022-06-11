@@ -12,7 +12,8 @@ import wochenplan.verwaltung.exceptions.TerminExistenceException;
 import wochenplan.verwaltung.termin.Termin;
 import wochenplan.verwaltung.termin.TerminEditOptions;
 import wochenplan.verwaltung.termin.TerminZeit;
-import wochenplan.verwaltung.termin.Weg;
+import wochenplan.verwaltung.termin.Hinweg;
+import wochenplan.verwaltung.termin.Rueckweg;
 
 public class Main {
 
@@ -373,10 +374,10 @@ public class Main {
 					System.out.println("Termin erfolgreich umbenannt");
 				} else {
 					woche.removeTermin(tag, beginn);
-					if (woche.getTermin(tag, beginn - 1) instanceof Weg) {
+					if (woche.getTermin(tag, beginn - 1) instanceof Hinweg) {
 						woche.removeTermin(tag, beginn - 1);
 					}
-					if (woche.getTermin(tag, zeit.getEnde() + 1) instanceof Weg) {
+					if (woche.getTermin(tag, zeit.getEnde() + 1) instanceof Rueckweg) {
 						woche.removeTermin(tag, zeit.getEnde() + 1);
 					}
 					System.out.println("Termin erfolgreich gelöscht");

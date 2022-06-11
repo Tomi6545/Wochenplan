@@ -14,7 +14,8 @@ import wochenplan.verwaltung.exceptions.TerminAddException;
 import wochenplan.verwaltung.exceptions.TerminExistenceException;
 import wochenplan.verwaltung.termin.Termin;
 import wochenplan.verwaltung.termin.TerminZeit;
-import wochenplan.verwaltung.termin.Weg;
+import wochenplan.verwaltung.termin.Hinweg;
+import wochenplan.verwaltung.termin.Rueckweg;
 
 public class Wochenplan {
 
@@ -69,7 +70,7 @@ public class Wochenplan {
 	 * existiert tritt eine @TerminAddException auf. Ist die Zeit ungültig tritt eine @InvalidTimeException auf.
 	 */
 	public void addHinweg(int tag, int beginn, int ende, int wegDauer) throws TerminAddException, InvalidTimeException {
-		addTermin("Hinweg", tag, beginn - wegDauer, beginn, Weg.class);
+		addTermin("Hinweg", tag, beginn - wegDauer, beginn, Hinweg.class);
 	}
 
 	/**
@@ -77,7 +78,7 @@ public class Wochenplan {
 	 * existiert tritt eine @TerminAddException auf. Ist die Zeit ungültig tritt eine @InvalidTimeException auf.
 	 */
 	public void addRückweg(int tag, int beginn, int ende, int wegDauer) throws TerminAddException, InvalidTimeException {
-		addTermin("Rückweg", tag, ende, ende + wegDauer, Weg.class);
+		addTermin("Rückweg", tag, ende, ende + wegDauer, Rueckweg.class);
 	}
 
 	/**
@@ -433,7 +434,7 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 					Termin termin = getTermin(i, j);
 					TerminZeit dauer = getTerminDuration(termin);
 					
-					boolean isWeg = termin instanceof Weg;
+					boolean isWeg = termin instanceof Rueckweg;
 					
 					writer.write((isWeg ? "w_" : "") + dauer.getTag() + "/" + dauer.getStart() + "-" + dauer.getEnde() + ":"
 							+ termin.getName() + "\n");
@@ -475,7 +476,7 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 				int start = Integer.parseInt(splittedLineValues[1].split("-")[0]);
 				int ende = Integer.parseInt(splittedLineValues[1].split("-")[1]);
 
-				wochenplan.addTermin(name, tag, start, ende + 1, isWeg ? Weg.class : Termin.class);
+				wochenplan.addTermin(name, tag, start, ende + 1, isWeg ? Rueckweg.class : Termin.class);
 			} catch (Exception e) {
 			}
 		}
