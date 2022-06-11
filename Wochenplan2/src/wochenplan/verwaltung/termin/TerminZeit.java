@@ -1,4 +1,4 @@
-package wochenplan.verwaltung;
+package wochenplan.verwaltung.termin;
 
 import java.util.Calendar;
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
@@ -61,6 +61,10 @@ public class TerminZeit {
 		}
 	}
 	
+	/**
+	 * Wandelt einen tag zum zugehörigen int um. Falls der tag ungültig ist
+	 * tritt eine @InvalidTimeException auf
+	 */
 	public static int convertTagToInt(String tag) throws InvalidTimeException {
 		switch(tag.toLowerCase()) {
 			case "montag":
@@ -82,6 +86,9 @@ public class TerminZeit {
 		}
 	}
 	
+	/**
+	 * Formatiert einen Zeitslot in eine lesbare Zeit um.
+	 */
 	public static String formatTime(int time) {
 		int stunden = (int) (time / 4);
 		int minuten = (int) (((double) (time) / 4 % 1) * 60);
@@ -99,10 +106,17 @@ public class TerminZeit {
 		return bStunden + ":" + bMinuten;
 	}
 	
+	
+	/**
+	 * Wandelt eine Eingabe in einen Zeitslot um
+	 */
 	public static int convertTimeToTimeSlot(double time) {
 		return (int) (time * 4);
 	}
 	
+	/**
+	 * Liefert den jetzigen Tag als int
+	 */
 	public static int getTodayAsInt() {
 		Calendar calendar = Calendar.getInstance();
 		int output = calendar.get(Calendar.DAY_OF_WEEK) - 2;
@@ -113,6 +127,9 @@ public class TerminZeit {
 		return output;
 	}
 	
+	/**
+	 * Liefert die jetzige Uhrzeit als Zeitslot
+	 */
 	public static int getCurrentTimeAsTimeSlot() {
 		Calendar calendar = Calendar.getInstance();
 		
@@ -129,14 +146,24 @@ public class TerminZeit {
 		return isValidTime(tag) && 0 <= zeitslot && zeitslot <= 95;
 	}
 	
+	/**
+	 * returnt true wenn es eine gültige Zeit für einen Termin ist
+	 */
 	public static boolean isValidTime(int tag) {
 		return 0 <= tag && tag <= 6;
 	}
 	
+	/**
+	 * returnt true wenn es eine gültige Zeit für einen Termin ist
+	 */
 	public static boolean isValidTime(int tag, int start, int ende) {
 		return isValidTime(tag, start) && isValidTime(tag, ende) && start < ende;
 	}
 	
+	/**
+	 * Versucht eine Terminzeit mit den angegeben Werten zu erstellen
+	 * Ist einer der Werte ungültig tritt eine @InvalidTimeException auf
+	 */
 	public static TerminZeit create(int tag, int start, int ende) throws InvalidTimeException {
 		if(!isValidTime(tag, start, ende))
 			throw new InvalidTimeException();

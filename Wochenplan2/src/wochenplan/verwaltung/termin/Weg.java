@@ -1,4 +1,4 @@
-package wochenplan.verwaltung;
+package wochenplan.verwaltung.termin;
 
 public class Weg extends Termin{
 

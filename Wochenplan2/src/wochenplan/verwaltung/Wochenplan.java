@@ -12,6 +12,9 @@ import java.util.List;
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
 import wochenplan.verwaltung.exceptions.TerminExistenceException;
+import wochenplan.verwaltung.termin.Termin;
+import wochenplan.verwaltung.termin.TerminZeit;
+import wochenplan.verwaltung.termin.Weg;
 
 public class Wochenplan {
 

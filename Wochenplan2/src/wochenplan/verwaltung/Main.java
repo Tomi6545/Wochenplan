@@ -9,6 +9,10 @@ import java.util.Scanner;
 import wochenplan.verwaltung.exceptions.InvalidTimeException;
 import wochenplan.verwaltung.exceptions.TerminAddException;
 import wochenplan.verwaltung.exceptions.TerminExistenceException;
+import wochenplan.verwaltung.termin.Termin;
+import wochenplan.verwaltung.termin.TerminEditOptions;
+import wochenplan.verwaltung.termin.TerminZeit;
+import wochenplan.verwaltung.termin.Weg;
 
 public class Main {
 
