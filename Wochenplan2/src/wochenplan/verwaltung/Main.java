@@ -213,9 +213,15 @@ public class Main {
 
 				try {
 					Termin termin = woche.getNextTermin(searchTag, searchZeitSlot, searchName);
+					
+					if(termin == null)
+						throw new TerminExistenceException();
+					
 					System.out.println(woche.printTermin(termin));
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit");
+				} catch(TerminExistenceException e) {
+					System.out.println("Es existiert kein Termin zu dieser Zeit");
 				}
 				break;
 			case "FIND":
