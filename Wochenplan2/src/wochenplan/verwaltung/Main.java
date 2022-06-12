@@ -110,7 +110,8 @@ public class Main {
 				showTagOptions();
 				try {
 					System.out.println(woche.printTermine(TerminZeit.convertTagToInt(
-							getStringValue("Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag"))));
+							getStringValue("Montag", "Dienstag", "Mittwoch", "Donnerstag",
+									"Freitag", "Samstag", "Sonntag"))));
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit");
 				}
