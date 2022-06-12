@@ -115,23 +115,32 @@ public class Main {
 				} catch (InvalidTimeException e) {
 					System.out.println("Ungültige Zeit");
 				}
-				boolean weg = false;
-				System.out.println("Möchten Sie die eingetragenen Wegzeiten auch ausgeben?");
-				System.out.println("y für yes oder n für no");
-				if (getStringValue("y", "n").equals("y")) {
-					weg = true;
+				if (woche.existsTermin(tag)) {
+					boolean weg = false;
+					System.out.println("Möchten Sie die eingetragenen Wegzeiten auch ausgeben?");
+					System.out.println("y für yes oder n für no");
+					if (getStringValue("y", "n").equals("y")) {
+						weg = true;
+					}
+					System.out.println(woche.printTermine(tag, weg));
+				} else {
+					System.out.println("An diesem Tag sind noch keine Termine eingetragen");
 				}
-				System.out.println(woche.printTermine(tag, weg));
 
 				break;
 			case "PRINTALL":
-				boolean withWeg = false;
-				System.out.println("Möchten Sie die eingetragenen Wegzeiten auch ausgeben?");
-				System.out.println("y für yes oder n für no");
-				if (getStringValue("y", "n").equals("y")) {
-					withWeg = true;
+				if(woche.existsTermine()) {
+					boolean withWeg = false;
+					System.out.println("Möchten Sie die eingetragenen Wegzeiten auch ausgeben?");
+					System.out.println("y für yes oder n für no");
+					if (getStringValue("y", "n").equals("y")) {
+						withWeg = true;
+					}
+					System.out.println(woche.printTermine(withWeg));
+				} else {
+					System.out.println("Es sind noch keine Termine eingetragen");
 				}
-				System.out.println(woche.printTermine(withWeg));
+				
 				break;
 			case "RENAME":
 				editTermin(woche, TerminEditOptions.RENAME);

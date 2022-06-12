@@ -301,6 +301,19 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 
 		return false;
 	}
+	
+	/**
+	 * Returnt true, wenn in der Woche mindestens ein Termin eingetragen ist
+	 */
+	public boolean existsTermine() {
+		for (int i = 0; i < termine.length; i++)
+			for (int j = 0; j < termine[i].length; j++)
+				if (existsTermin(i, j)){
+					return true;
+		}
+		return false;
+	}
+	
 
 
 	/**
