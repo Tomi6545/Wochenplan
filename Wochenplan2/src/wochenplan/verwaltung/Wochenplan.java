@@ -305,8 +305,9 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 
 	/**
 	 * Liefert eine Ausgabe für alle @Termin an diesem Tag
+	 * Es kann angegeben werden ob Wege übersprungen werden sollen
 	 */
-	public String printTermine(int tag) {
+	public String printTermine(int tag, boolean withWeg) {
 		String output = "";
 		if (existsTermin(tag)) {
 			try {
@@ -317,6 +318,10 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 			for (int i = 0; i < termine[tag].length; i++) {
 				if (existsTermin(tag, i)) {
 					Termin termin = getTermin(tag, i);
+					
+					if(!withWeg && (termin instanceof Hinweg || termin instanceof Rueckweg))
+						continue;
+					
 					TerminZeit dauer = getTerminDuration(termin);
 					output += printTermin(tag, i);
 					i += dauer.getDauer();
@@ -328,18 +333,34 @@ TERMINSLOTS:for(int slot = 0; slot < termine[tag].length; slot++) {
 	}
 	
 	/**
-	 * Liefert eine Ausgabe für alle eingetragenen @Termin
+	 * Liefert eine Ausgabe für alle @Termin an diesem Tag
 	 */
-	public String printTermine() {
+	public String printTermine(int tag) {
+		return printTermine(tag, true);
+	}
+	
+	/**
+	 * Liefert eine Ausgabe für alle eingetragenen @Termin
+	 * Es kann angegeben werden ob Wege übersprungen werden sollen
+	 */
+	
+	public String printTermine(boolean withWeg) {
 		String output = "";
 		for (int i = 0; i < termine.length; i++) {
 			if (!existsTermin(i))
 				continue;
 
-			output += printTermine(i) + "\n";
+			output += printTermine(i, withWeg) + "\n";
 		}
 
 		return !output.isEmpty() ? output : "Es wurden noch keine Termine eingetragen";
+	}
+	
+	/**
+	 * Liefert eine Ausgabe für alle eingetragenen @Termin
+	 */
+	public String printTermine() {
+		return printTermine(true);
 	}
 	
 	/**
